@@ -3,12 +3,19 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const cors = require('cors');
+const morgan = require('morgan');
+require('dotenv').config();
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
-
+require('./config/db');
 var app = express();
+
+
+// --- 全局中间件设置 ---
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

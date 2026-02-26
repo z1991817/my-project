@@ -16,7 +16,7 @@ setGlobalDispatcher(proxyAgent);
 // 2. 初始化 AI 客户端 (强烈建议使用环境变量)
 // ==========================================
 // 示例：在终端中运行 `export GEMINI_API_KEY="你的新密钥"` 然后启动项目
-const apiKey = process.env.GEMINI_API_KEY || "AIzaSyByiYD4Ie7bm4omcFlzPX-etu2V0mPMyWo"; 
+const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDnGs0wR_7inALo7_MFfPzcy1zw454y5OI"; 
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // ==========================================
@@ -35,10 +35,19 @@ router.get('/', async function(req, res, next) {
     console.log("AI 回复:", response.text);
     
     // 你可以将 AI 的回复传递给前端模板
-    res.render('admin/index', { 
-      title: 'Admin Dashboard', 
-      aiGreeting: response.text 
-    });
+    // res.render('admin/index', { 
+    //   title: 'Admin Dashboard', 
+    //   aiGreeting: response.text 
+    // });
+
+    res.json({
+            code: 200,
+            message: '返回成功！',
+            data: {
+                response: response.text
+            }
+        });
+
 
   } catch (error) {
     console.error("调用 Google API 失败:", error);
