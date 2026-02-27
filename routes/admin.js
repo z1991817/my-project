@@ -16,7 +16,7 @@ setGlobalDispatcher(proxyAgent);
 // 2. 初始化 AI 客户端 (强烈建议使用环境变量)
 // ==========================================
 // 示例：在终端中运行 `export GEMINI_API_KEY="你的新密钥"` 然后启动项目
-const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDnGs0wR_7inALo7_MFfPzcy1zw454y5OI"; 
+const apiKey = process.env.GEMINI_API_KEY; 
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // ==========================================
@@ -29,7 +29,7 @@ router.get('/', async function(req, res, next) {
     const response = await ai.models.generateContent({
       // 请确保模型名称拼写正确，如果报错找不到模型，可尝试 "gemini-2.5-flash"
       model: "gemini-3-flash-preview", 
-      contents: "你好，世界！",
+      contents: "你是什么模型？请简单介绍一下自己。",
     });
     
     console.log("AI 回复:", response.text);
