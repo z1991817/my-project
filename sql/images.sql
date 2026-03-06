@@ -1,0 +1,21 @@
+-- 图片库表
+CREATE TABLE IF NOT EXISTS `images` (
+  `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT COMMENT '图片ID',
+  `url`         VARCHAR(500)    NOT NULL COMMENT '图片URL',
+  `title`       VARCHAR(200)    DEFAULT NULL COMMENT '图片标题',
+  `description` VARCHAR(500)    DEFAULT NULL COMMENT '图片描述',
+  `prompt`      TEXT            DEFAULT NULL COMMENT '提示词',
+  `category_id` INT UNSIGNED    DEFAULT NULL COMMENT '分类ID',
+  `uploaded_at` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+  `created_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_category_id` (`category_id`),
+  INDEX `idx_uploaded_at` (`uploaded_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片库表';
+
+-- 插入示例数据
+INSERT INTO `images` (`url`, `description`, `prompt`, `category_id`) VALUES
+('https://example.com/image1.jpg', '示例图片1', 'a beautiful landscape', 1),
+('https://example.com/image2.jpg', '示例图片2', 'a cute cat', 2),
+('https://example.com/image3.jpg', '示例图片3', 'modern architecture', 1);

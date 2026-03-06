@@ -87,5 +87,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  import('open').then(({ default: open }) => open(`http://localhost:${port}`));
+  console.log(`Server running at http://localhost:${port}`);
 }

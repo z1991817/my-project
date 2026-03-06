@@ -1,49 +1,59 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const cors = require('cors');
-const morgan = require('morgan');
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var adminRouter = require('./routes/admin');
+
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('./config/db');
-var app = express();
 
+const v1Router = require('./routes/v1');
+const appRouter = require('./app/index');
 
-// --- 全局中间件设置 ---
+const app = express();
 
+// CORS
+app.use(cors());
 
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
+// 日志
 app.use(logger('dev'));
+
+// 请求体解析
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// 静态资源
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/admin', adminRouter);
+// 路由
+app.use('/api/v1', v1Router);
+app.use('/app', appRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+// 404
+app.use((_req, _res, next) => {
   next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// 全局错误处理
+app.use((err, req, res, _next) => {
+  const status = err.status || 500;
+  const message = err.message || '服务器内部错误';
 
-  // render the error page
-  res.status(err.status || 500);
+  // 非 404 错误打印日志
+  if (status >= 500) {
+    console.error('[Error]', err);
+  }
+
+  // API 请求返回 JSON
+  if (req.path.startsWith('/api/v1') || req.path.startsWith('/app') || req.headers['content-type']?.includes('application/json')) {
+    return res.status(status).json({ code: status, message });
+  }
+
+  res.locals.message = message;
+  res.locals.error = app.get('env') === 'development' ? err : {};
+  res.status(status);
   res.render('error');
 });
 

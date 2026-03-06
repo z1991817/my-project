@@ -1,0 +1,182 @@
+# 帮助/API文档
+
+## Docs
+- [系统使用介绍](https://zyhelp.apifox.cn/6349249m0.md): 
+- [API介绍](https://zyhelp.apifox.cn/6349250m0.md): 
+- [项目说明](https://zyhelp.apifox.cn/6349251m0.md): 
+- [导言](https://zyhelp.apifox.cn/6349252m0.md): 
+- [身份验证](https://zyhelp.apifox.cn/6349253m0.md): 
+- [发出请求](https://zyhelp.apifox.cn/6349254m0.md): 
+- [参数详情](https://zyhelp.apifox.cn/6349255m0.md): 
+- [所有对话模型均兼容 OpenAI 格式](https://zyhelp.apifox.cn/7815529m0.md): 
+- OpenAI > 聊天（Chat） [聊天完成对象](https://zyhelp.apifox.cn/6349256m0.md): 
+- OpenAI > 聊天（Chat） [聊天完成块对象](https://zyhelp.apifox.cn/6349257m0.md): 
+- OpenAI > 图像（Images） [README](https://zyhelp.apifox.cn/6349258m0.md): 
+- OpenAI > 图像（Images） [图像对象](https://zyhelp.apifox.cn/6349259m0.md): 
+- OpenAI > 文件（Files） [README](https://zyhelp.apifox.cn/6349260m0.md): 
+- OpenAI > 文件（Files） [文件对象](https://zyhelp.apifox.cn/6349261m0.md): 
+- OpenAI > 自动补全（Completions） [完成对象](https://zyhelp.apifox.cn/6349262m0.md): 
+- OpenAI > 嵌入（Embeddings） [嵌入对象](https://zyhelp.apifox.cn/6349263m0.md): 
+- 绘图接口 > image异步格式（task） [说明：接口说明及参数](https://zyhelp.apifox.cn/8066894m0.md): 
+- 绘图接口 > Mid journey生图 [说明：接口说明及参数](https://zyhelp.apifox.cn/6349266m0.md): 
+- 绘图接口 > 豆包（即梦、火山）绘图 [快速接入说明](https://zyhelp.apifox.cn/7669001m0.md): 
+- 视频接口 > 可灵（keling）官方格式 [对接教程](https://zyhelp.apifox.cn/7630846m0.md): 
+- 音乐接口 > Suno > V1版本格式 [说明](https://zyhelp.apifox.cn/6349264m0.md): 
+- 音乐接口 > Suno > 支持 newapi [提示](https://zyhelp.apifox.cn/7669538m0.md): 
+- 音乐接口 > Suno > 支持 newapi [suno api 说明](https://zyhelp.apifox.cn/7669563m0.md): 
+- 音乐接口 > udio（废弃） > 常用格式 [说明](https://zyhelp.apifox.cn/6349265m0.md): 
+
+## API Docs
+- OpenAI > 聊天（Chat） > gpt-4-all [gpt-4-all（识图）](https://zyhelp.apifox.cn/277752955e0.md): 
+- OpenAI > 聊天（Chat） > gpt-4-all [gpt-4-all（生成图片）](https://zyhelp.apifox.cn/277752956e0.md): 
+- OpenAI > 聊天（Chat） [GPT创建聊天（补全）接口](https://zyhelp.apifox.cn/277752951e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- OpenAI > 聊天（Chat） [识图（gpt和gemini）](https://zyhelp.apifox.cn/277752952e0.md): 
+- OpenAI > 聊天（Chat） [gpts](https://zyhelp.apifox.cn/277752953e0.md): 模型名称格式为：gpt-4-gizmo-*，系统会自动进行识别
+- OpenAI > 聊天（Chat） [gemini-pro](https://zyhelp.apifox.cn/277752954e0.md): 谷歌最新gemini-pro，vision与OpenAI vision格式一致，后续我们也会直接购买谷歌API付费套餐
+- OpenAI > 音频（Audio） [创建语音](https://zyhelp.apifox.cn/277752957e0.md): 
+- OpenAI > 音频（Audio） [创建转录](https://zyhelp.apifox.cn/277752958e0.md): 
+- OpenAI > 音频（Audio） [创建翻译](https://zyhelp.apifox.cn/277752959e0.md): 
+- OpenAI > 图像（Images） [创建图像](https://zyhelp.apifox.cn/277752960e0.md): [图片](https://platform.openai.com/docs/api-reference/images)
+- OpenAI > 图像（Images） [创建图片编辑](https://zyhelp.apifox.cn/277752961e0.md): 在给定原始图像和提示的情况下创建编辑或扩展图像。
+- OpenAI > 图像（Images） [创建图像变体](https://zyhelp.apifox.cn/277752962e0.md): 创建给定图像的变体。
+- OpenAI > 文件（Files） [上传文件](https://zyhelp.apifox.cn/277752963e0.md): 上传可跨各种端点/功能使用的文件
+- OpenAI > 自动补全（Completions） [创建完成](https://zyhelp.apifox.cn/277752968e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- OpenAI > 嵌入（Embeddings） [创建嵌入](https://zyhelp.apifox.cn/277752969e0.md): 获取给定输入的矢量表示，机器学习模型和算法可以轻松使用该表示。
+- Google-Gemini [gemini官方格式](https://zyhelp.apifox.cn/388790052e0.md): 
+- Google-Gemini [gemini生图（官方格式）](https://zyhelp.apifox.cn/391360298e0.md): 
+- Google-Gemini [识图（gemini）](https://zyhelp.apifox.cn/388790019e0.md): 
+- Anthropic-Claude [识图](https://zyhelp.apifox.cn/388791187e0.md): 
+- Anthropic-Claude [思考](https://zyhelp.apifox.cn/388791186e0.md): 
+- Anthropic-Claude [函数调用](https://zyhelp.apifox.cn/388801244e0.md): 
+- 绘图接口 > image异步格式（task） [gemini系列创建图像](https://zyhelp.apifox.cn/408331758e0.md): 
+- 绘图接口 > image异步格式（task） [gemini系列编辑图像](https://zyhelp.apifox.cn/408331759e0.md): 
+- 绘图接口 > image异步格式（task） [gpt4o创建图像](https://zyhelp.apifox.cn/410231659e0.md): 
+- 绘图接口 > image异步格式（task） [gpt4o编辑图像](https://zyhelp.apifox.cn/410231660e0.md): 
+- 绘图接口 > image异步格式（task） [指定ID获取任务](https://zyhelp.apifox.cn/408332783e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交Describe任务(图生文)](https://zyhelp.apifox.cn/277752982e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交Imagine任务(文生图、文图生图)](https://zyhelp.apifox.cn/277752983e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交Blend任务(图生图)](https://zyhelp.apifox.cn/277752984e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [执行动作(所有的关联按钮动作UPSCALE; VARIATION; REROLL; ZOOM等)](https://zyhelp.apifox.cn/277752986e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [绘图变化(UPSCALE; VARIATION; REROLL)](https://zyhelp.apifox.cn/277752985e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [绘图变化-simple(UPSCALE; VARIATION; REROLL)](https://zyhelp.apifox.cn/277752987e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交Modal(提交局部重绘、ZOOM)](https://zyhelp.apifox.cn/277752988e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交Shorten任务(prompt分析)](https://zyhelp.apifox.cn/277752989e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [MJ上传图片获得url](https://zyhelp.apifox.cn/307627218e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交图片编辑任务](https://zyhelp.apifox.cn/315694973e0.md): 
+- 绘图接口 > Mid journey生图 > 任务提交 [提交MJ视频任务](https://zyhelp.apifox.cn/317466701e0.md): 支持视频扩展
+- 绘图接口 > Mid journey生图 > 任务查询 [指定ID获取任务](https://zyhelp.apifox.cn/277752990e0.md): 
+- 绘图接口 > Mid journey生图 > 任务查询 [根据ID列表查询任务](https://zyhelp.apifox.cn/277752991e0.md): 
+- 绘图接口 > Mid journey生图 > 任务查询 [获取任务图片的seed](https://zyhelp.apifox.cn/277752992e0.md): 
+- 绘图接口 > Mid journey生图 [提交swap_face任务](https://zyhelp.apifox.cn/277752981e0.md): 
+- 绘图接口 > gpt4oImage > image/genertions格式（dalle格式） [创建图像（官方4o格式）](https://zyhelp.apifox.cn/323456125e0.md): 
+- 绘图接口 > gpt4oImage > image/genertions格式（dalle格式） [编辑图像（官方4o格式）](https://zyhelp.apifox.cn/323461495e0.md): 
+- 绘图接口 > gpt4oImage > chat格式 [gpt-4o-image（生成图片)](https://zyhelp.apifox.cn/323451151e0.md): 支持模型：gpt-4o-image/gpt-4o-image-vip
+- 绘图接口 > gpt4oImage > chat格式 [gpt-4o-image（修改图片)](https://zyhelp.apifox.cn/323454154e0.md): 支持模型：gpt-4o-image/gpt-4o-image-vip
+- 绘图接口 > nano-banana > chat格式 [文生图（chat格式）](https://zyhelp.apifox.cn/343461269e0.md): 支持模型：gpt-4o-image/gpt-4o-image-vip
+- 绘图接口 > nano-banana > chat格式 [图生图（chat格式）](https://zyhelp.apifox.cn/343461270e0.md): 
+- 绘图接口 > nano-banana > image/genertions格式（dalle格式） [创建图像nano-banana-2](https://zyhelp.apifox.cn/393766017e0.md): 
+- 绘图接口 > nano-banana > image/genertions格式（dalle格式） [编辑图像](https://zyhelp.apifox.cn/351291897e0.md): 
+- 绘图接口 > 豆包（即梦、火山）绘图 > 即梦4 [即梦4-绘图](https://zyhelp.apifox.cn/376830624e0.md): 支持多图参考
+- 绘图接口 > 豆包（即梦、火山）绘图 > 即梦4 [即梦4-编辑edits](https://zyhelp.apifox.cn/376842345e0.md): 支持多图参考
+- 绘图接口 > 豆包（即梦、火山）绘图 > 即梦4 [即梦4-chat格式](https://zyhelp.apifox.cn/376842437e0.md): 
+- 绘图接口 > 豆包（即梦、火山）绘图 [即梦3-图生图](https://zyhelp.apifox.cn/376847231e0.md): 支持多图参考
+- 绘图接口 > 豆包（即梦、火山）绘图 [即梦3-文生图](https://zyhelp.apifox.cn/376849040e0.md): 支持多图参考
+- 绘图接口 > 豆包（即梦、火山）绘图 [AI营销商品图](https://zyhelp.apifox.cn/376830623e0.md): 
+- 绘图接口 > 豆包（即梦、火山）绘图 [单图写真（pv版）](https://zyhelp.apifox.cn/376853385e0.md): 
+- 绘图接口 > 豆包（即梦、火山）绘图 [inpainting涂抹消除](https://zyhelp.apifox.cn/376854734e0.md): 用户可通过涂抹、选区等方式建立重绘区域，调用算法重新绘制。此功能为不支持输入prompt的消除功能，在路人消除、杂物消除、水印消除等任务表现较好，推荐使用分割接口来进行消除，消除的人物选择完整，建议一次性给客户返回3-4个效果供客户进行挑选。
+- 绘图接口 > 豆包（即梦、火山）绘图 [inpainting涂抹编辑](https://zyhelp.apifox.cn/376864757e0.md): 用户可通过涂抹、选区等方式建立重绘区域，调用算法重新绘制。此功能为支持输入prompt的涂抹编辑功能，按照prompt生成指定内容。考虑效果更优，建议一次性给客户返回3-4个效果供客户进行挑选。
+- 绘图接口 > 豆包（即梦、火山）绘图 [outpainting智能扩图](https://zyhelp.apifox.cn/376867014e0.md): 智能扩图支持多种扩展类型，包括：等比扩展、画幅扩展、四边扩展、画布扩展，用户prompt可选输入，不输入则按照算法默认逻辑进行扩展。
+- 绘图接口 > 豆包（即梦、火山）绘图 [实时生图-图生图](https://zyhelp.apifox.cn/376867895e0.md): 本接口提供根据用户的草图与文本提示，进行实时绘图的能力。核心是参考用户绘制图片的框架结构，结合用户输入的文本提示，实时转化为精美的图像
+- 绘图接口 > recraftv3文生图 [OpenAI 聊天格式](https://zyhelp.apifox.cn/277752996e0.md): model 支持
+- 绘图接口 > recraftv3文生图 [OpenAI Dalle3格式](https://zyhelp.apifox.cn/277752997e0.md): model 支持
+- 绘图接口 > Flux文生图 > 官方异步格式 [flux生成图像](https://zyhelp.apifox.cn/277752994e0.md): 
+- 绘图接口 > Flux文生图 > 官方异步格式 [指定ID获取任务](https://zyhelp.apifox.cn/277752995e0.md): 
+- 绘图接口 > Flux文生图 [OpenAI 聊天格式](https://zyhelp.apifox.cn/277752993e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- 视频接口 > openai-sora-2 > （推荐）异步调用--官方格式 [提交视频生成任务](https://zyhelp.apifox.cn/358076961e0.md): 视频大概耗时
+- 视频接口 > openai-sora-2 > （推荐）异步调用--官方格式 [remix video编辑视频](https://zyhelp.apifox.cn/359282674e0.md): 编辑视频
+- 视频接口 > openai-sora-2 > （推荐）异步调用--官方格式 [创建客串角色 Character](https://zyhelp.apifox.cn/380077487e0.md): 创建角色，后续可用于 @ 调用
+- 视频接口 > openai-sora-2 > （推荐）异步调用--官方格式 [提交视频生成任务（带character）](https://zyhelp.apifox.cn/380245054e0.md): 角色客串
+- 视频接口 > openai-sora-2 > （推荐）异步调用--官方格式 [指定ID获取任务](https://zyhelp.apifox.cn/358076963e0.md): 
+- 视频接口 > openai-sora-2 > 异步调用--cwmp [提交视频生成任务](https://zyhelp.apifox.cn/373576016e0.md): 视频大概耗时
+- 视频接口 > openai-sora-2 > 异步调用--cwmp [remix video](https://zyhelp.apifox.cn/373576018e0.md): 视频大概耗时
+- 视频接口 > openai-sora-2 > 异步调用--cwmp [指定ID获取任务](https://zyhelp.apifox.cn/373576019e0.md): 
+- 视频接口 > openai-sora-2 [OpenAI 聊天格式](https://zyhelp.apifox.cn/358076960e0.md): 支持流式、非流、带图请求（dalle格式）
+- 视频接口 > google-veo > 异步调用 [提交视频生成任务](https://zyhelp.apifox.cn/310798833e0.md): 推荐使用sora2接口，避免重复开发
+- 视频接口 > google-veo > 异步调用 [提交(带图)视频生成任务](https://zyhelp.apifox.cn/311145390e0.md): 
+- 视频接口 > google-veo > 异步调用 [指定ID获取任务](https://zyhelp.apifox.cn/310798834e0.md): 
+- 视频接口 > google-veo > 异步调用--cwmp [提交视频生成任务](https://zyhelp.apifox.cn/374529007e0.md): 
+- 视频接口 > google-veo > 异步调用--cwmp [提交(带图)视频生成任务](https://zyhelp.apifox.cn/374529032e0.md): 
+- 视频接口 > google-veo > 异步调用--cwmp [指定ID获取任务](https://zyhelp.apifox.cn/374528095e0.md): 
+- 视频接口 > google-veo [OpenAI 聊天格式](https://zyhelp.apifox.cn/310798832e0.md): 支持流式、非流、带图请求（dalle格式）
+- 视频接口 > 可灵（keling）官方格式 [文本生成视频](https://zyhelp.apifox.cn/373399409e0.md): 
+- 视频接口 > 可灵（keling）官方格式 [图生视频](https://zyhelp.apifox.cn/373410449e0.md): 
+- 视频接口 > 可灵（keling）官方格式 [指定ID获取任务](https://zyhelp.apifox.cn/373399411e0.md): 
+- 视频接口 > Vidu [提交视频生成任务](https://zyhelp.apifox.cn/376922144e0.md): 仅需将官方 API 地址，更换为我们的地址
+- 视频接口 > Vidu [指定ID获取任务](https://zyhelp.apifox.cn/376922145e0.md): 
+- 视频接口 > Seedance（即梦视频） > 官方异步调用 [提交视频生成任务](https://zyhelp.apifox.cn/376914996e0.md): 仅需将官方 API 地址，更换为我们的地址
+- 视频接口 > Seedance（即梦视频） > 官方异步调用 [指定ID获取任务](https://zyhelp.apifox.cn/376915000e0.md): 
+- 视频接口 > runway > 官方异步调用 [提交视频生成任务](https://zyhelp.apifox.cn/310798890e0.md): 将 HTTP Authorization 标头与Bearer方案以及 API 密钥一起使用。
+- 视频接口 > runway > 官方异步调用 [指定ID获取任务](https://zyhelp.apifox.cn/310798891e0.md): 
+- 视频接口 > runway > 简单格式（goamz/rocket） [文本生成视频](https://zyhelp.apifox.cn/310798892e0.md): 
+- 视频接口 > runway > 简单格式（goamz/rocket） [参考图片生成视频 ](https://zyhelp.apifox.cn/311076112e0.md): 
+- 视频接口 > runway > 简单格式（goamz/rocket） [video2video(视频转视频 风格重绘）](https://zyhelp.apifox.cn/311089191e0.md): 
+- 视频接口 > runway > 简单格式（goamz/rocket） [Act-one 表情迁移](https://zyhelp.apifox.cn/311091555e0.md): 
+- 视频接口 > runway > 简单格式（goamz/rocket） [指定ID获取任务（免费）](https://zyhelp.apifox.cn/310798893e0.md): 
+- 视频接口 > luma > 官方异步调用 [提交视频生成任务](https://zyhelp.apifox.cn/277752999e0.md): 兼容GoAmz：接口改为/luma/V1/generations、/vip/luma/V1/generations、/pro/luma/V1/generations
+- 视频接口 > luma > 官方异步调用 [指定ID获取任务](https://zyhelp.apifox.cn/277753000e0.md): 
+- 视频接口 > luma > GoAmzAI格式 [提交视频生成任务](https://zyhelp.apifox.cn/277753001e0.md): 支持普通luma：免费账号版，价格略低
+- 视频接口 > luma > GoAmzAI格式 [指定ID获取任务](https://zyhelp.apifox.cn/277753002e0.md): 
+- 视频接口 > luma [OpenAI 聊天格式](https://zyhelp.apifox.cn/277752998e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- 视频接口 > pixverse [提交视频生成任务](https://zyhelp.apifox.cn/310798871e0.md): template_id
+- 视频接口 > pixverse [指定ID获取任务](https://zyhelp.apifox.cn/310798872e0.md): status
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务提交 [生成歌曲](https://zyhelp.apifox.cn/277752972e0.md): 支持官方格式：
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务提交 [生成歌词](https://zyhelp.apifox.cn/277752973e0.md): {{BASE_URL}}/suno/generate/lyrics
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务提交 [上传音乐](https://zyhelp.apifox.cn/277752974e0.md): 
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务提交 [歌曲拼接](https://zyhelp.apifox.cn/277752975e0.md): 
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务提交 [生成歌词](https://zyhelp.apifox.cn/317953047e0.md): 
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务查询 [查询任务](https://zyhelp.apifox.cn/277752976e0.md): 支持,返回结果无code层级
+- 音乐接口 > Suno > V1版本格式 > 异步调用（API形式）格式 > 任务查询 [查询歌词](https://zyhelp.apifox.cn/277752977e0.md): 返回结果与查询任务接口返回的歌词结构不同
+- 音乐接口 > Suno > V1版本格式 [OpenAI 聊天格式 ](https://zyhelp.apifox.cn/277752970e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- 音乐接口 > Suno > V1版本格式 [GoAmzAI格式](https://zyhelp.apifox.cn/277752971e0.md): 已兼容 GoAmz 格式
+- 音乐接口 > Suno > 支持 newapi [场景1 - 灵感模式生成音乐](https://zyhelp.apifox.cn/376948063e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景2 - 自定义歌词、标题和风格](https://zyhelp.apifox.cn/376948064e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景3 - 生成纯音乐（无人声）](https://zyhelp.apifox.cn/376948065e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景4 - 灵感模式生成纯音乐](https://zyhelp.apifox.cn/376948066e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景5 - 续写/扩展已有音频](https://zyhelp.apifox.cn/376948067e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景6 - 混音重制（使用参考音频）](https://zyhelp.apifox.cn/376948068e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景7 - 替换歌曲指定片段](https://zyhelp.apifox.cn/376948069e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景8 - 全轨声曲分离](https://zyhelp.apifox.cn/376948070e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景9 - 人声分离](https://zyhelp.apifox.cn/376948071e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景10 - 改写（重新生成）](https://zyhelp.apifox.cn/376948072e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [场景11 - 重新填词 (Overpainting)](https://zyhelp.apifox.cn/376948073e0.md): ## 场景说明
+- 音乐接口 > Suno > 支持 newapi [生成歌词](https://zyhelp.apifox.cn/378531033e0.md): {{BASE_URL}}/suno/generate/lyrics
+- 音乐接口 > Suno > 支持 newapi [查询生成任务的结果](https://zyhelp.apifox.cn/376948074e0.md): ## 接口说明
+- 音乐接口 > Suno > 支持 newapi [上传自定义音频文件](https://zyhelp.apifox.cn/376948075e0.md): ## 接口说明
+- 音乐接口 > Suno > 支持 newapi [获取音乐的MIDI数据](https://zyhelp.apifox.cn/376948076e0.md): ## 接口说明
+- 音乐接口 > Suno > 支持 newapi [扩展Style Tags（风格标签）](https://zyhelp.apifox.cn/376948077e0.md): ## 接口说明
+- 音乐接口 > udio（废弃） > 常用格式 > 异步调用（API形式）格式 > 任务提交 [生成歌曲](https://zyhelp.apifox.cn/277752978e0.md): 详细请看说明
+- 音乐接口 > udio（废弃） > 常用格式 > 异步调用（API形式）格式 > 任务提交 [续写](https://zyhelp.apifox.cn/277752979e0.md): config.source.song_id
+- 音乐接口 > udio（废弃） > 常用格式 > 异步调用（API形式）格式 > 任务查询 [查询任务](https://zyhelp.apifox.cn/277752980e0.md): 
+- 特殊场景 [gemini解析pdf](https://zyhelp.apifox.cn/382348449e0.md): 
+- 本系统API [获取用户信息（含余额）](https://zyhelp.apifox.cn/377823658e0.md): 
+- 本系统API [列出所有模型](https://zyhelp.apifox.cn/377835998e0.md): 
+
+## Schemas
+- Schemas [MidiComplete](https://zyhelp.apifox.cn/219393712d0.md): 
+- Schemas [MidiProcessing](https://zyhelp.apifox.cn/219393713d0.md): 
+- Schemas [ClipResult](https://zyhelp.apifox.cn/219393714d0.md): 
+- Schemas [Scene11_OverpaintingRequest](https://zyhelp.apifox.cn/219393715d0.md): 
+- Schemas [Scene10_RewriteRequest](https://zyhelp.apifox.cn/219393716d0.md): 
+- Schemas [Scene9_VocalStemsRequest](https://zyhelp.apifox.cn/219393717d0.md): 
+- Schemas [Scene8_AllStemsRequest](https://zyhelp.apifox.cn/219393718d0.md): 
+- Schemas [Scene7B_ReplaceGeneratedRequest](https://zyhelp.apifox.cn/219393719d0.md): 
+- Schemas [Scene7A_ReplaceUploadedRequest](https://zyhelp.apifox.cn/219393720d0.md): 
+- Schemas [Scene6B_RemixGeneratedRequest](https://zyhelp.apifox.cn/219393721d0.md): 
+- Schemas [Scene6A_RemixUploadedRequest](https://zyhelp.apifox.cn/219393722d0.md): 
+- Schemas [Scene5B_ContinueGeneratedRequest](https://zyhelp.apifox.cn/219393723d0.md): 
+- Schemas [Scene5A_ContinueUploadedRequest](https://zyhelp.apifox.cn/219393724d0.md): 
+- Schemas [Scene4_InstrumentalInspirationRequest](https://zyhelp.apifox.cn/219393725d0.md): 
+- Schemas [Scene3_InstrumentalCustomRequest](https://zyhelp.apifox.cn/219393726d0.md): 
+- Schemas [Scene2_CustomRequest](https://zyhelp.apifox.cn/219393727d0.md): 
+- Schemas [Error](https://zyhelp.apifox.cn/219393728d0.md): 
+- Schemas [Scene1_InspirationRequest](https://zyhelp.apifox.cn/219393729d0.md): 
