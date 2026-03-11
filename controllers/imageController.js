@@ -204,6 +204,37 @@ const imageController = {
       next(error);
     }
   },
+
+  /**
+   * App 端上传图片到临时目录
+   * POST /app/images/upload
+   * 表单字段: file (文件)
+   * 上传到 COS 的 appTempData 目录
+   */
+  async uploadToTemp(req, res, next) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          code: 400,
+          message: '请选择要上传的图片文件',
+        });
+      }
+
+      // 上传到腾讯云 COS 的 appTempData 目录
+      const { uploadToCOS } = require('../middleware/cosUpload');
+      const url = await uploadToCOS(req.file.buffer, req.file.originalname, 'appTempData');
+
+      res.json({
+        code: 200,
+        message: '上传成功',
+        data: {
+          url,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = imageController;

@@ -1,3 +1,7 @@
+:root {
+  --p-button-primary-background: rgb(139, 92, 246);
+}
+
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;

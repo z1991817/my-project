@@ -37,13 +37,14 @@ const upload = multer({
  * 上传文件到腾讯云 COS
  * @param {Buffer} fileBuffer - 文件缓冲区
  * @param {string} originalname - 原始文件名
+ * @param {string} folder - 文件夹路径，默认 'admin'
  * @returns {Promise<string>} - 返回文件的访问 URL
  */
-function uploadToCOS(fileBuffer, originalname) {
+function uploadToCOS(fileBuffer, originalname, folder = 'admin') {
   return new Promise((resolve, reject) => {
     const ext = path.extname(originalname);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const key = `admin/image-${uniqueSuffix}${ext}`;
+    const key = `${folder}/image-${uniqueSuffix}${ext}`;
 
     cos.putObject({
       Bucket: process.env.COS_BUCKET,

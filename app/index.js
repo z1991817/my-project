@@ -2,13 +2,11 @@ const express = require('express');
 const router = express.Router();
 const openaiController = require('../controllers/openai');
 
-// 分类管理
 router.use('/categories', require('./categories'));
-
-// 图片管理
 router.use('/images', require('./images'));
 
-// 文生图
 router.post('/textToImage', openaiController.generateImage);
+router.post('/textToimageNew', openaiController.generateImageByChatCompletions);
+router.get('/textToImage/tasks/:taskId', openaiController.getUploadTaskStatus);
 
 module.exports = router;

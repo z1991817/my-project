@@ -10,5 +10,6 @@ router.post('/chat', openaiController.generateText);
 
 // 生成图片（文生图）
 router.post('/generate', openaiController.generateImage);
+router.get('/tasks/:taskId', openaiController.getUploadTaskStatus);
 
 module.exports = router;

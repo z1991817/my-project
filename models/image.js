@@ -29,7 +29,7 @@ const Image = {
     const [[{ total }], [rows]] = await Promise.all([
       db.query(`SELECT COUNT(*) AS total FROM images ${whereClause}`, params),
       db.query(
-        `SELECT i.id, i.url, i.title, i.description, i.prompt, i.category_id,
+        `SELECT i.id, i.url, i.thumbnail, i.title, i.description, i.prompt, i.category_id,
          c.name AS category_name,
          DATE_FORMAT(i.uploaded_at, '%Y-%m-%d %H:%i:%s') AS uploaded_at,
          DATE_FORMAT(i.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
@@ -50,7 +50,7 @@ const Image = {
    */
   async findById(id) {
     const [rows] = await db.query(
-      `SELECT i.id, i.url, i.title, i.description, i.prompt, i.category_id,
+      `SELECT i.id, i.url, i.thumbnail, i.title, i.description, i.prompt, i.category_id,
        c.name AS category_name,
        i.uploaded_at, i.created_at, i.updated_at
        FROM images i
@@ -68,6 +68,42 @@ const Image = {
     const [result] = await db.query(
       'INSERT INTO images (url, description, prompt, category_id,title) VALUES (?, ?, ?, ?, ?)',
       [url, description, prompt, category_id,title]
+    );
+    return result.insertId;
+  },
+
+  /**
+   * 创建 OpenAI 生成图记录（绑定上传任务）
+   */
+  async createFromOpenAITask({
+    url,
+    source_url,
+    thumbnail,
+    title,
+    description,
+    prompt,
+    category_id,
+    upload_task_id,
+    upload_status,
+    upload_error,
+  }) {
+    const [result] = await db.query(
+      `INSERT INTO images (
+        url, source_url, thumbnail, title, description, prompt, category_id,
+        upload_task_id, upload_status, upload_error
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        url,
+        source_url || null,
+        thumbnail || null,
+        title || null,
+        description || null,
+        prompt || null,
+        category_id || null,
+        upload_task_id || null,
+        upload_status || null,
+        upload_error || null,
+      ]
     );
     return result.insertId;
   },
@@ -101,6 +137,42 @@ const Image = {
     }
 
     if (fields.length === 0) return false;
+
+    params.push(id);
+    const [result] = await db.query(
+      `UPDATE images SET ${fields.join(', ')} WHERE id = ?`,
+      params
+    );
+    return result.affectedRows > 0;
+  },
+
+  /**
+   * 更新 OpenAI 上传任务状态
+   */
+  async updateOpenAIUpload(id, { url, upload_status, upload_error, thumbnail }) {
+    const fields = [];
+    const params = [];
+
+    if (url !== undefined) {
+      fields.push('url = ?');
+      params.push(url);
+    }
+    if (upload_status !== undefined) {
+      fields.push('upload_status = ?');
+      params.push(upload_status);
+    }
+    if (upload_error !== undefined) {
+      fields.push('upload_error = ?');
+      params.push(upload_error);
+    }
+    if (thumbnail !== undefined) {
+      fields.push('thumbnail = ?');
+      params.push(thumbnail);
+    }
+
+    if (fields.length === 0) {
+      return false;
+    }
 
     params.push(id);
     const [result] = await db.query(

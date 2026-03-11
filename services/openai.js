@@ -1,15 +1,57 @@
 const OpenAI = require('openai');
 const axios = require('axios');
 const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+const { randomUUID } = require('crypto');
+const { Transform } = require('stream');
 const { cos } = require('../middleware/cosUpload');
+const Image = require('../models/image');
 
-// 获取 OpenAI 客户端实例（延迟初始化）
+const UPLOAD_LOG_FILE = path.join(process.cwd(), 'upload.log');
+const DOWNLOAD_TIMEOUT_MS = Number.parseInt(process.env.OPENAI_IMAGE_DOWNLOAD_TIMEOUT_MS || '15000', 10);
+const MAX_UPLOAD_CONCURRENCY = Math.max(
+  1,
+  Number.parseInt(process.env.OPENAI_COS_UPLOAD_CONCURRENCY || '2', 10)
+);
+const MAX_UPLOAD_RETRIES = Math.max(0, Number.parseInt(process.env.OPENAI_COS_UPLOAD_RETRIES || '2', 10));
+const UPLOAD_TASK_TTL_MS = Math.max(
+  60_000,
+  Number.parseInt(process.env.OPENAI_UPLOAD_TASK_TTL_MS || String(24 * 60 * 60 * 1000), 10)
+);
+const RETRY_BASE_DELAY_MS = 5000;
+const RETRY_MAX_DELAY_MS = 30000;
+const THIRD_PARTY_LOG_ENABLED = !['false', '0', 'off'].includes(
+  String(process.env.OPENAI_THIRD_PARTY_LOG || 'true').toLowerCase()
+);
+const THIRD_PARTY_LOG_MAX_LENGTH = Math.max(
+  1000,
+  Number.parseInt(process.env.OPENAI_THIRD_PARTY_LOG_MAX_LENGTH || '12000', 10)
+);
+const DEFAULT_UPLOAD_QUALITY = Math.max(
+  1,
+  Math.min(100, Number.parseInt(process.env.OPENAI_IMAGE_UPLOAD_QUALITY || '72', 10))
+);
+const THUMBNAIL_WIDTH = Math.max(1, Number.parseInt(process.env.OPENAI_THUMBNAIL_WIDTH || '268', 10));
+const THUMBNAIL_HEIGHT = Math.max(1, Number.parseInt(process.env.OPENAI_THUMBNAIL_HEIGHT || '358', 10));
+const THUMBNAIL_QUALITY = Math.max(
+  1,
+  Math.min(100, Number.parseInt(process.env.OPENAI_THUMBNAIL_QUALITY || '70', 10))
+);
+const DEFAULT_IMAGE_CHAT_MODEL = process.env.OPENAI_IMAGE_CHAT_MODEL || 'gpt-4o-image';
+const DEFAULT_IMAGE_CHAT_GROUP = process.env.OPENAI_IMAGE_CHAT_GROUP || 'default';
+
+const uploadTasks = new Map();
+const pendingTaskIds = [];
+let activeUploadCount = 0;
+let cleanupTimer = null;
+
 function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('缺少 OPENAI_API_KEY 环境变量');
+    throw new Error('Missing OPENAI_API_KEY env variable');
   }
   const config = {
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: process.env.OPENAI_API_KEY,
   };
   if (process.env.OPENAI_BASE_URL) {
     config.baseURL = process.env.OPENAI_BASE_URL;
@@ -17,82 +59,706 @@ function getOpenAIClient() {
   return new OpenAI(config);
 }
 
-/**
- * 生成缩略图 base64
- * @param {string} imageUrl - 图片URL
- * @param {number} width - 宽度
- * @param {number} height - 高度
- * @returns {Promise<string>} - 返回 base64 字符串
- */
-async function generateThumbnail(imageUrl, width = 269, height = 358) {
-  try {
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    const imageBuffer = Buffer.from(response.data);
+function buildChatCompletionsUrl() {
+  const baseUrl = process.env.OPENAI_BASE_URL;
+  if (!baseUrl) {
+    throw new Error('Missing OPENAI_BASE_URL env variable');
+  }
 
-    const thumbnail = await sharp(imageBuffer)
-      .resize(width, height, { fit: 'cover' })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+  const normalized = String(baseUrl).replace(/\/+$/, '');
+  if (normalized.endsWith('/chat/completions')) {
+    return normalized;
+  }
+  if (normalized.endsWith('/v1')) {
+    return `${normalized}/chat/completions`;
+  }
+  return `${normalized}/v1/chat/completions`;
+}
 
-    return `data:image/jpeg;base64,${thumbnail.toString('base64')}`;
-  } catch (error) {
-    console.error('生成缩略图失败:', error.message);
-    return null;
+function ensureCleanupTimer() {
+  if (cleanupTimer) {
+    return;
+  }
+
+  cleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [taskId, task] of uploadTasks.entries()) {
+      if (now - task.updatedAt > UPLOAD_TASK_TTL_MS) {
+        uploadTasks.delete(taskId);
+      }
+    }
+  }, 10 * 60 * 1000);
+
+  if (typeof cleanupTimer.unref === 'function') {
+    cleanupTimer.unref();
   }
 }
 
-/**
- * 下载图片并上传到COS
- * @param {string} imageUrl - 图片URL
- * @param {number} quality - 压缩质量 (1-100)，默认85
- * @returns {Promise<string>} - 返回COS中的图片URL
- */
-async function downloadAndUploadToCOS(imageUrl, quality = 90) {
+function appendUploadLog(message) {
+  const line = `${new Date().toISOString()} ${message}\n`;
+  fs.promises.appendFile(UPLOAD_LOG_FILE, line).catch((err) => {
+    console.error('[upload-log] write failed:', err.message);
+  });
+}
+
+function logThirdPartyPayload(label, payload) {
+  if (!THIRD_PARTY_LOG_ENABLED) {
+    return;
+  }
+
   try {
-    // 下载图片
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    let imageBuffer = Buffer.from(response.data);
+    const serialized = JSON.stringify(payload);
+    if (serialized.length <= THIRD_PARTY_LOG_MAX_LENGTH) {
+      console.log(`[third-party] ${label}: ${serialized}`);
+      return;
+    }
 
-    // 使用 sharp 压缩图片
-    imageBuffer = await sharp(imageBuffer)
-      .jpeg({ quality, mozjpeg: true })
-      .toBuffer();
+    const truncated = serialized.slice(0, THIRD_PARTY_LOG_MAX_LENGTH);
+    console.log(
+      `[third-party] ${label}: ${truncated}... [truncated ${serialized.length - THIRD_PARTY_LOG_MAX_LENGTH} chars]`
+    );
+  } catch (error) {
+    console.log(`[third-party] ${label}: [unserializable payload] ${error.message}`);
+  }
+}
 
-    // 获取当前日期 YYYY-MM-DD
-    const today = new Date();
-    const dateFolder = today.toISOString().split('T')[0];
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    return '0 B';
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const kb = bytes / 1024;
+  if (kb < 1024) {
+    return `${kb.toFixed(2)} KB`;
+  }
+  const mb = kb / 1024;
+  return `${mb.toFixed(2)} MB`;
+}
 
-    // 生成文件名
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const key = `temp/${dateFolder}/image-${uniqueSuffix}.jpg`;
+function normalizeBase64Payload(base64Data) {
+  if (!base64Data) {
+    return { base64: '', mimeType: 'image/png' };
+  }
+  const value = String(base64Data);
+  const matched = value.match(/^data:(.+?);base64,(.*)$/);
+  if (!matched) {
+    return { base64: value, mimeType: 'image/png' };
+  }
+  return { mimeType: matched[1], base64: matched[2] };
+}
 
-    // 上传到COS
-    return new Promise((resolve, reject) => {
-      cos.putObject({
+function normalizeUploadQuality(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.max(1, Math.min(100, Math.round(value)));
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed)) {
+      return Math.max(1, Math.min(100, parsed));
+    }
+  }
+
+  return DEFAULT_UPLOAD_QUALITY;
+}
+
+async function processImageForUpload(sourceBuffer, sourceContentType, options = {}) {
+  const quality = normalizeUploadQuality(options.quality);
+  const compressBeforeUpload = options.compressBeforeUpload !== false;
+  if (!compressBeforeUpload) {
+    return {
+      uploadBuffer: sourceBuffer,
+      sourceBytes: sourceBuffer.length,
+      uploadBytes: sourceBuffer.length,
+      contentType: sourceContentType || 'image/jpeg',
+      ext: getExtFromContentType(sourceContentType),
+    };
+  }
+
+  const metadata = await sharp(sourceBuffer, { failOn: 'none' }).metadata();
+  let pipeline = sharp(sourceBuffer, { failOn: 'none' });
+  if (metadata?.hasAlpha) {
+    pipeline = pipeline.flatten({ background: '#ffffff' });
+  }
+
+  const uploadBuffer = await pipeline
+    .jpeg({
+      quality,
+      mozjpeg: true,
+      progressive: true,
+      chromaSubsampling: '4:2:0',
+    })
+    .toBuffer();
+
+  return {
+    uploadBuffer,
+    sourceBytes: sourceBuffer.length,
+    uploadBytes: uploadBuffer.length,
+    contentType: 'image/jpeg',
+    ext: 'jpg',
+  };
+}
+
+async function generateThumbnailBase64FromBuffer(imageBuffer) {
+  const thumbnailBuffer = await sharp(imageBuffer, { failOn: 'none' })
+    .resize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, {
+      fit: 'cover',
+      position: 'attention',
+      withoutEnlargement: false,
+    })
+    .jpeg({ quality: THUMBNAIL_QUALITY, mozjpeg: true, progressive: true })
+    .toBuffer();
+
+  return `data:image/jpeg;base64,${thumbnailBuffer.toString('base64')}`;
+}
+
+async function generateThumbnailFromImageUrl(imageUrl) {
+  const response = await axios.get(imageUrl, {
+    responseType: 'arraybuffer',
+    timeout: DOWNLOAD_TIMEOUT_MS,
+  });
+  const imageBuffer = Buffer.from(response.data);
+  return generateThumbnailBase64FromBuffer(imageBuffer);
+}
+
+async function generateThumbnailFromBase64(base64Data) {
+  const { base64 } = normalizeBase64Payload(base64Data);
+  const imageBuffer = Buffer.from(base64, 'base64');
+  return generateThumbnailBase64FromBuffer(imageBuffer);
+}
+
+function buildCosObjectKey(ext = 'jpg') {
+  const dateFolder = new Date().toISOString().split('T')[0];
+  const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+  const safeExt = String(ext || 'jpg').replace(/^\./, '').toLowerCase();
+  return `temp/${dateFolder}/image-${uniqueSuffix}.${safeExt}`;
+}
+
+function getExtFromContentType(contentType = '') {
+  const normalized = contentType.toLowerCase();
+  if (normalized.includes('png')) return 'png';
+  if (normalized.includes('webp')) return 'webp';
+  if (normalized.includes('gif')) return 'gif';
+  if (normalized.includes('bmp')) return 'bmp';
+  if (normalized.includes('avif')) return 'avif';
+  return 'jpg';
+}
+
+async function uploadBufferToCOS(imageBuffer, contentType = 'image/jpeg', ext = 'jpg') {
+  const key = buildCosObjectKey(ext);
+
+  return new Promise((resolve, reject) => {
+    cos.putObject(
+      {
         Bucket: process.env.COS_BUCKET,
         Region: process.env.COS_REGION,
         Key: key,
         Body: imageBuffer,
-      }, (err) => {
+        ContentType: contentType,
+      },
+      (err) => {
         if (err) {
           return reject(err);
         }
         const url = `https://${process.env.COS_BUCKET}.cos.${process.env.COS_REGION}.myqcloud.com/${key}`;
         resolve(url);
+      }
+    );
+  });
+}
+
+async function downloadAndUploadToCOS(imageUrl, options = {}) {
+  const quality = normalizeUploadQuality(options.quality);
+  const compressBeforeUpload = options.compressBeforeUpload !== false;
+
+  const response = await axios.get(imageUrl, {
+    responseType: 'arraybuffer',
+    timeout: DOWNLOAD_TIMEOUT_MS,
+  });
+
+  const sourceBuffer = Buffer.from(response.data);
+  const processed = await processImageForUpload(sourceBuffer, response.headers['content-type'], {
+    quality,
+    compressBeforeUpload,
+  });
+  const thumbnail = await generateThumbnailBase64FromBuffer(processed.uploadBuffer);
+  const cosUrl = await uploadBufferToCOS(processed.uploadBuffer, processed.contentType, processed.ext);
+
+  return {
+    cosUrl,
+    sourceBytes: processed.sourceBytes,
+    uploadBytes: processed.uploadBytes,
+    thumbnail,
+  };
+}
+
+async function uploadBase64ToCOS(base64Data, options = {}) {
+  const quality = normalizeUploadQuality(options.quality);
+  const compressBeforeUpload = options.compressBeforeUpload !== false;
+  const { base64, mimeType } = normalizeBase64Payload(base64Data);
+  const sourceBuffer = Buffer.from(base64, 'base64');
+  const processed = await processImageForUpload(sourceBuffer, mimeType, {
+    quality,
+    compressBeforeUpload,
+  });
+  const thumbnail = await generateThumbnailBase64FromBuffer(processed.uploadBuffer);
+  const cosUrl = await uploadBufferToCOS(processed.uploadBuffer, processed.contentType, processed.ext);
+
+  return {
+    cosUrl,
+    sourceBytes: processed.sourceBytes,
+    uploadBytes: processed.uploadBytes,
+    thumbnail,
+  };
+}
+
+function isHttpUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value);
+}
+
+function extractImageUrlsFromText(value) {
+  if (typeof value !== 'string' || !value) {
+    return [];
+  }
+
+  const found = new Set();
+  const markdownImagePattern = /!\[[^\]]*]\((https?:\/\/[^)\s]+)\)/gi;
+
+  let match;
+  while ((match = markdownImagePattern.exec(value)) !== null) {
+    const url = match[1];
+    if (!isHttpUrl(url)) {
+      continue;
+    }
+
+    found.add(url);
+  }
+
+  return Array.from(found);
+}
+
+async function uploadImageCandidateToCOS(candidate, options = {}, cache = new Map()) {
+  const cacheKey = `${candidate.type}:${candidate.value}`;
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+
+  const task = (async () => {
+    const uploadResult =
+      candidate.type === 'base64'
+        ? await uploadBase64ToCOS(candidate.value, options)
+        : await downloadAndUploadToCOS(candidate.value, options);
+
+    return {
+      originalUrl: candidate.type === 'url' ? candidate.value : null,
+      cosUrl: uploadResult.cosUrl,
+      thumbnail: uploadResult.thumbnail || null,
+      sourceBytes: uploadResult.sourceBytes || null,
+      uploadBytes: uploadResult.uploadBytes || null,
+      type: candidate.type,
+    };
+  })();
+
+  cache.set(cacheKey, task);
+  return task;
+}
+
+async function replaceImagesWithCosUrls(payload, options = {}, cache = new Map(), collector = []) {
+  if (Array.isArray(payload)) {
+    await Promise.all(payload.map((item) => replaceImagesWithCosUrls(item, options, cache, collector)));
+    return payload;
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return payload;
+  }
+
+  if (typeof payload.b64_json === 'string' && payload.b64_json.trim()) {
+    const uploaded = await uploadImageCandidateToCOS(
+      { type: 'base64', value: payload.b64_json },
+      options,
+      cache
+    );
+    payload.url = uploaded.cosUrl;
+    payload.cos_url = uploaded.cosUrl;
+    payload.thumbnail = payload.thumbnail || uploaded.thumbnail;
+    collector.push(uploaded);
+  }
+
+  if (isHttpUrl(payload.url)) {
+    const uploaded = await uploadImageCandidateToCOS({ type: 'url', value: payload.url }, options, cache);
+    payload.original_url = payload.original_url || payload.url;
+    payload.url = uploaded.cosUrl;
+    payload.cos_url = uploaded.cosUrl;
+    payload.thumbnail = payload.thumbnail || uploaded.thumbnail;
+    collector.push(uploaded);
+  }
+
+  const contentImageUrls = extractImageUrlsFromText(payload.content);
+  if (contentImageUrls.length > 0) {
+    const finalImageUrl = contentImageUrls[0];
+    const uploadedImages = [
+      await uploadImageCandidateToCOS({ type: 'url', value: finalImageUrl }, options, cache),
+    ];
+
+    let rewrittenContent = payload.content;
+    for (const uploaded of uploadedImages) {
+      if (uploaded.originalUrl) {
+        rewrittenContent = rewrittenContent.split(uploaded.originalUrl).join(uploaded.cosUrl);
+      }
+      collector.push(uploaded);
+    }
+    payload.content = rewrittenContent;
+  }
+
+  const entries = Object.entries(payload);
+  await Promise.all(
+    entries.map(async ([key, value]) => {
+      if (
+        key === 'b64_json' ||
+        key === 'url' ||
+        key === 'cos_url' ||
+        key === 'thumbnail' ||
+        key === 'original_url' ||
+        key === 'content'
+      ) {
+        return;
+      }
+
+      if (Array.isArray(value) || (value && typeof value === 'object')) {
+        await replaceImagesWithCosUrls(value, options, cache, collector);
+      }
+    })
+  );
+
+  return payload;
+}
+
+function createCosUploadSSETransform(options = {}) {
+  const quality = normalizeUploadQuality(options.quality);
+  const compressBeforeUpload = options.compressBeforeUpload !== false;
+  const cache = new Map();
+  const emitted = new Set();
+  const pendingUploads = new Set();
+  let buffer = '';
+  let streamClosed = false;
+
+  function emitAsyncEvent(stream, eventName, payload) {
+    if (streamClosed || stream.destroyed) {
+      return;
+    }
+
+    stream.push(`event: ${eventName}\ndata: ${JSON.stringify(payload)}\n\n`);
+  }
+
+  function scheduleUploadsFromPayload(stream, payload) {
+    const uploads = [];
+    const task = replaceImagesWithCosUrls(payload, { quality, compressBeforeUpload }, cache, uploads)
+      .then(() => {
+        for (const uploaded of uploads) {
+          const dedupeKey = uploaded.cosUrl || `${uploaded.type}:${uploaded.originalUrl || ''}`;
+          if (emitted.has(dedupeKey)) {
+            continue;
+          }
+          emitted.add(dedupeKey);
+          emitAsyncEvent(stream, 'cos_upload', { image: uploaded });
+        }
+      })
+      .catch((error) => {
+        emitAsyncEvent(stream, 'cos_upload_error', { message: error.message });
+      })
+      .finally(() => {
+        pendingUploads.delete(task);
       });
-    });
-  } catch (error) {
-    console.error('下载或上传图片失败:', error.message);
-    throw error;
+
+    pendingUploads.add(task);
+  }
+
+  function handleEventBlock(stream, block) {
+    const normalizedBlock = block.replace(/\r\n/g, '\n');
+    const lines = normalizedBlock.split('\n');
+    const dataLines = lines.filter((line) => line.startsWith('data:'));
+    if (dataLines.length === 0) {
+      return `${block}\n\n`;
+    }
+
+    const data = dataLines.map((line) => line.slice(5).trimStart()).join('\n');
+    if (data === '[DONE]') {
+      return `${block}\n\n`;
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(data);
+    } catch (error) {
+      return `${block}\n\n`;
+    }
+
+    scheduleUploadsFromPayload(stream, payload);
+    return `${block}\n\n`;
+  }
+
+  const transform = new Transform({
+    transform(chunk, encoding, callback) {
+      buffer += chunk.toString('utf8');
+      const blocks = buffer.split(/\r?\n\r?\n/);
+      buffer = blocks.pop() || '';
+
+      let output = '';
+      for (const block of blocks) {
+        if (!block) {
+          output += '\n';
+          continue;
+        }
+        output += handleEventBlock(this, block);
+      }
+      callback(null, output);
+    },
+    flush(callback) {
+      (async () => {
+        let output = '';
+        if (buffer) {
+          output = handleEventBlock(this, buffer);
+        }
+
+        if (output) {
+          this.push(output);
+        }
+
+        await Promise.allSettled(Array.from(pendingUploads));
+        streamClosed = true;
+        callback();
+      })().catch(callback);
+    },
+  });
+
+  return transform;
+}
+
+function toPublicTask(task) {
+  return {
+    taskId: task.taskId,
+    imageId: task.imageId || null,
+    sourceType: task.sourceType,
+    status: task.status,
+    originalUrl: task.originalUrl,
+    cosUrl: task.cosUrl,
+    sourceBytes: task.sourceBytes || null,
+    uploadBytes: task.uploadBytes || null,
+    thumbnail: task.thumbnail || null,
+    error: task.error,
+    attempts: task.attempts,
+    maxAttempts: task.maxAttempts,
+    createdAt: new Date(task.createdAt).toISOString(),
+    updatedAt: new Date(task.updatedAt).toISOString(),
+  };
+}
+
+function releaseTaskPayload(task) {
+  if (task.sourceType === 'base64') {
+    task.base64Data = null;
   }
 }
 
-/**
- * 图片分析
- * @param {string} imageUrl - 图片URL
- * @param {string} prompt - 提示词
- */
-async function analyzeImage(imageUrl, prompt = '请描述这张图片') {
+function createUploadTask(payload, options = {}) {
+  ensureCleanupTimer();
+
+  const taskId = randomUUID();
+  const now = Date.now();
+  const task = {
+    taskId,
+    imageId: payload.imageId || null,
+    sourceType: payload.sourceType,
+    originalUrl: payload.originalUrl || null,
+    imageUrl: payload.imageUrl || null,
+    base64Data: payload.base64Data || null,
+    status: 'pending',
+    cosUrl: null,
+    sourceBytes: null,
+    uploadBytes: null,
+    thumbnail: null,
+    error: null,
+    attempts: 0,
+    maxAttempts: MAX_UPLOAD_RETRIES + 1,
+    createdAt: now,
+    updatedAt: now,
+    uploadOptions: {
+      quality: options.quality,
+      compressBeforeUpload: Boolean(options.compressBeforeUpload),
+    },
+    enqueued: false,
+  };
+
+  uploadTasks.set(taskId, task);
+  if (options.startUploadImmediately !== false) {
+    task.enqueued = true;
+    pendingTaskIds.push(taskId);
+    processUploadQueue();
+  }
+  return toPublicTask(task);
+}
+
+async function persistTaskStateToImage(task) {
+  if (!task.imageId) {
+    return;
+  }
+
+  const payload = {
+    upload_status: task.status,
+    upload_error: task.error || null,
+  };
+  if (task.status === 'success' && task.cosUrl) {
+    payload.url = task.cosUrl;
+    payload.thumbnail = task.thumbnail || null;
+  }
+
+  try {
+    await Image.updateOpenAIUpload(task.imageId, payload);
+  } catch (error) {
+    appendUploadLog(`[db-update-failed] task=${task.taskId} imageId=${task.imageId} error=${error.message}`);
+  }
+}
+
+function scheduleRetry(task) {
+  const retryDelayMs = Math.min(
+    RETRY_BASE_DELAY_MS * 2 ** Math.max(0, task.attempts - 1),
+    RETRY_MAX_DELAY_MS
+  );
+
+  const timer = setTimeout(() => {
+    task.status = 'pending';
+    task.updatedAt = Date.now();
+    if (!task.enqueued) {
+      task.enqueued = true;
+      pendingTaskIds.push(task.taskId);
+    }
+    processUploadQueue();
+  }, retryDelayMs);
+
+  if (typeof timer.unref === 'function') {
+    timer.unref();
+  }
+}
+
+async function runUploadTask(task) {
+  task.attempts += 1;
+  task.status = 'uploading';
+  task.updatedAt = Date.now();
+  const startMsg = `[upload-start] task=${task.taskId} sourceType=${task.sourceType} attempt=${task.attempts}/${task.maxAttempts}`;
+  console.log(startMsg);
+  appendUploadLog(startMsg);
+  await persistTaskStateToImage(task);
+
+  const startTime = Date.now();
+  try {
+    const uploadResult =
+      task.sourceType === 'base64'
+        ? await uploadBase64ToCOS(task.base64Data, task.uploadOptions)
+        : await downloadAndUploadToCOS(task.imageUrl, task.uploadOptions);
+
+    task.status = 'success';
+    task.cosUrl = uploadResult.cosUrl;
+    task.sourceBytes = uploadResult.sourceBytes;
+    task.uploadBytes = uploadResult.uploadBytes;
+    task.thumbnail = uploadResult.thumbnail;
+    task.error = null;
+    task.updatedAt = Date.now();
+    releaseTaskPayload(task);
+    await persistTaskStateToImage(task);
+
+    const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
+    const successMsg = `[upload-success] task=${task.taskId} duration=${durationSec}s source=${formatBytes(task.sourceBytes)} compressed=${formatBytes(task.uploadBytes)} url=${task.cosUrl}`;
+    console.log(successMsg);
+    appendUploadLog(successMsg);
+    return;
+  } catch (error) {
+    task.error = error.message;
+    task.updatedAt = Date.now();
+    const hasRetry = task.attempts < task.maxAttempts;
+
+    if (hasRetry) {
+      task.status = 'retrying';
+      await persistTaskStateToImage(task);
+      const retryMsg = `[upload-retry] task=${task.taskId} attempts=${task.attempts}/${task.maxAttempts} error=${error.message}`;
+      console.warn(retryMsg);
+      appendUploadLog(retryMsg);
+      scheduleRetry(task);
+      return;
+    }
+
+    task.status = 'failed';
+    releaseTaskPayload(task);
+    await persistTaskStateToImage(task);
+    const failedMsg = `[upload-failed] task=${task.taskId} attempts=${task.attempts}/${task.maxAttempts} error=${error.message}`;
+    console.error(failedMsg);
+    appendUploadLog(failedMsg);
+  }
+}
+
+function processUploadQueue() {
+  while (activeUploadCount < MAX_UPLOAD_CONCURRENCY && pendingTaskIds.length > 0) {
+    const taskId = pendingTaskIds.shift();
+    const task = uploadTasks.get(taskId);
+
+    if (!task || task.status !== 'pending') {
+      continue;
+    }
+    task.enqueued = false;
+
+    activeUploadCount += 1;
+    runUploadTask(task).finally(() => {
+      activeUploadCount -= 1;
+      processUploadQueue();
+    });
+  }
+}
+
+function getUploadTaskStatus(taskId) {
+  const task = uploadTasks.get(taskId);
+  if (!task) {
+    return null;
+  }
+  return toPublicTask(task);
+}
+
+function bindUploadTask(taskId, imageId) {
+  const task = uploadTasks.get(taskId);
+  if (!task) {
+    return null;
+  }
+
+  task.imageId = imageId;
+  task.updatedAt = Date.now();
+  persistTaskStateToImage(task);
+  return toPublicTask(task);
+}
+
+function startUploadTasks(taskIds = []) {
+  if (!Array.isArray(taskIds) || taskIds.length === 0) {
+    return;
+  }
+
+  for (const taskId of taskIds) {
+    const task = uploadTasks.get(taskId);
+    if (!task) {
+      continue;
+    }
+    if (task.status !== 'pending') {
+      continue;
+    }
+    if (task.enqueued) {
+      continue;
+    }
+    task.enqueued = true;
+    task.updatedAt = Date.now();
+    pendingTaskIds.push(taskId);
+  }
+  processUploadQueue();
+}
+
+async function analyzeImage(imageUrl, prompt = 'Describe this image.') {
   const openai = getOpenAIClient();
   const response = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL || 'gpt-4o-image',
@@ -101,22 +767,16 @@ async function analyzeImage(imageUrl, prompt = '请描述这张图片') {
         role: 'user',
         content: [
           { type: 'text', text: prompt },
-          { type: 'image_url', image_url: { url: imageUrl } }
-        ]
-      }
+          { type: 'image_url', image_url: { url: imageUrl } },
+        ],
+      },
     ],
-    max_tokens: 1000
+    max_tokens: 1000,
   });
 
   return response.choices[0].message.content;
 }
 
-/**
- * 图片编辑
- * @param {Buffer} image - 图片Buffer
- * @param {Buffer} mask - 遮罩Buffer
- * @param {string} prompt - 编辑提示词
- */
 async function editImage(image, mask, prompt) {
   const openai = getOpenAIClient();
   const response = await openai.images.edit({
@@ -124,17 +784,12 @@ async function editImage(image, mask, prompt) {
     mask,
     prompt,
     n: 1,
-    size: '1024x1024'
+    size: '1024x1024',
   });
 
   return response.data[0].url;
 }
 
-/**
- * 文本生成（使用聊天接口）
- * @param {string} prompt - 生成提示词
- * @param {string} systemPrompt - 系统提示词
- */
 async function generateText(prompt, systemPrompt = 'You are a helpful assistant.') {
   try {
     const openai = getOpenAIClient();
@@ -143,101 +798,226 @@ async function generateText(prompt, systemPrompt = 'You are a helpful assistant.
       messages: [
         {
           role: 'system',
-          content: systemPrompt
+          content: systemPrompt,
         },
         {
           role: 'user',
-          content: prompt
-        }
-      ]
+          content: prompt,
+        },
+      ],
     });
 
     return response.choices[0].message.content;
   } catch (error) {
-    console.error('OpenAI API 错误:', error.message);
-    console.error('错误详情:', error.response?.data || error);
+    console.error('OpenAI API error:', error.message);
+    console.error('OpenAI API details:', error.response?.data || error);
     throw error;
   }
 }
 
-/**
- * 图片生成（文生图）并上传到COS
- * @param {string} prompt - 图片描述
- * @param {Object} options - 生成选项
- */
 async function generateImage(prompt, options = {}) {
   try {
     const openai = getOpenAIClient();
     const {
-      model = 'dall-e-3',
+      model = 'gpt-4o-image',
       n = 1,
       size = '1024x1024',
       style,
-      quality = 85,
-      uploadToCos = true
+      response_format,
+      quality = DEFAULT_UPLOAD_QUALITY,
+      uploadToCos = true,
+      compressBeforeUpload = true,
+      includeBase64InResponse = false,
+      includeThumbnailInResponse = false,
+      startUploadImmediately = true,
     } = options;
 
     const params = {
       model,
       prompt,
       n,
-      size
+      size,
     };
-
     if (style) {
       params.style = style;
     }
+    if (response_format) {
+      params.response_format = response_format;
+    }
 
+    logThirdPartyPayload('images.generate.request', {
+      baseURL: process.env.OPENAI_BASE_URL || null,
+      model,
+      params,
+    });
     const response = await openai.images.generate(params);
+    logThirdPartyPayload('images.generate.response', response);
 
-    // 检查响应数据
-    if (!response || !response.data || !Array.isArray(response.data)) {
-      throw new Error('OpenAI API 返回数据格式错误');
+    if (!response || !Array.isArray(response.data)) {
+      throw new Error('OpenAI API returned invalid image payload');
     }
 
-    // 提取原始 URL
-    const originalUrls = response.data.map(item => item.url);
+    return Promise.all(
+      response.data.map(async (item) => {
+        const imageUrl = item.url || null;
+        const b64Json = item.b64_json || null;
+        const result = {
+          imageUrl,
+          thumbnail: null,
+        };
 
-    // 立即返回原图 URL（不等待缩略图和上传）
-    const results = originalUrls.map(url => ({ imageUrl: url }));
+        const shouldIncludeBase64 = Boolean(b64Json) && (!imageUrl || includeBase64InResponse);
+        if (shouldIncludeBase64) {
+          result.imageBase64 = `data:image/png;base64,${b64Json}`;
+        }
 
-    // 后台异步生成缩略图和上传到 COS（不阻塞响应）
-    if (uploadToCos) {
-      console.log(`[上传任务] 开始异步上传 ${originalUrls.length} 张图片到 COS`);
-      originalUrls.forEach((url, index) => {
-        const startTime = Date.now();
-        console.log(`[上传任务] 图片 ${index + 1} 开始下载: ${url}`);
+        if (includeThumbnailInResponse) {
+          try {
+            if (b64Json) {
+              result.thumbnail = await generateThumbnailFromBase64(b64Json);
+            } else if (imageUrl) {
+              result.thumbnail = await generateThumbnailFromImageUrl(imageUrl);
+            }
+          } catch (error) {
+            const logMsg = `[thumbnail-generate-failed] url=${imageUrl || 'base64'} error=${error.message}`;
+            console.warn(logMsg);
+            appendUploadLog(logMsg);
+          }
+        }
 
-        downloadAndUploadToCOS(url, quality)
-          .then(cosUrl => {
-            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-            const logMsg = `[上传成功] 图片 ${index + 1} 已上传到 COS (耗时 ${duration}s): ${cosUrl}`;
-            console.log(logMsg);
-            // 写入日志文件
-            require('fs').appendFileSync('upload.log', `${new Date().toISOString()} ${logMsg}\n`);
-          })
-          .catch(err => {
-            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-            const logMsg = `[上传失败] 图片 ${index + 1} 上传失败 (耗时 ${duration}s): ${err.message}\n堆栈: ${err.stack}`;
-            console.error(logMsg);
-            // 写入日志文件
-            require('fs').appendFileSync('upload.log', `${new Date().toISOString()} ${logMsg}\n`);
-          });
-      });
-    }
+        if (uploadToCos) {
+          const canUpload = Boolean(imageUrl || b64Json);
+          if (canUpload) {
+            const task = createUploadTask(
+              imageUrl
+                ? { sourceType: 'url', originalUrl: imageUrl, imageUrl }
+                : { sourceType: 'base64', base64Data: b64Json },
+              { quality: normalizeUploadQuality(quality), compressBeforeUpload, startUploadImmediately }
+            );
 
-    // 立即返回结果
-    return results;
+            result.upload = {
+              taskId: task.taskId,
+              status: task.status,
+            };
+          }
+        }
+
+        if (item.revised_prompt) {
+          result.revisedPrompt = item.revised_prompt;
+        }
+
+        return result;
+      })
+    );
   } catch (error) {
-    console.error('图片生成错误:', error.message);
-    console.error('错误详情:', error.response?.data || error);
+    console.error('Image generation error:', error.message);
+    console.error('Image generation details:', error.response?.data || error);
     throw error;
   }
+}
+
+async function generateImageByChatCompletions(options = {}) {
+  const {
+    model = DEFAULT_IMAGE_CHAT_MODEL,
+    group = DEFAULT_IMAGE_CHAT_GROUP,
+    messages,
+    stream = true,
+    uploadToCos = true,
+    quality = DEFAULT_UPLOAD_QUALITY,
+    compressBeforeUpload = true,
+    temperature = 0.7,
+    top_p = 1,
+    frequency_penalty = 0,
+    presence_penalty = 0,
+  } = options;
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    throw new Error('messages is required');
+  }
+
+  const url = buildChatCompletionsUrl();
+  const payload = {
+    model,
+    group,
+    messages,
+    stream,
+    temperature,
+    top_p,
+    frequency_penalty,
+    presence_penalty,
+  };
+
+  logThirdPartyPayload('chat.completions.request', { url, payload });
+
+  const response = await axios.post(url, payload, {
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    responseType: stream ? 'stream' : 'json',
+    timeout: 0,
+    validateStatus: () => true,
+  });
+
+  if (response.status >= 400) {
+    if (stream && response.data) {
+      let errorBody = '';
+      await new Promise((resolve, reject) => {
+        response.data.on('data', (chunk) => {
+          errorBody += chunk.toString();
+        });
+        response.data.on('end', resolve);
+        response.data.on('error', reject);
+      });
+      throw new Error(`Chat completions API error (${response.status}): ${errorBody}`);
+    }
+
+    throw new Error(
+      `Chat completions API error (${response.status}): ${JSON.stringify(response.data || {})}`
+    );
+  }
+
+  if (stream) {
+    return {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers['content-type'] || 'text/event-stream; charset=utf-8',
+        'Cache-Control': response.headers['cache-control'] || 'no-cache, no-transform',
+        Connection: response.headers.connection || 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      },
+      stream: uploadToCos
+        ? response.data.pipe(
+            createCosUploadSSETransform({
+              quality,
+              compressBeforeUpload,
+            })
+          )
+        : response.data,
+    };
+  }
+
+  if (uploadToCos) {
+    await replaceImagesWithCosUrls(response.data, {
+      quality: normalizeUploadQuality(quality),
+      compressBeforeUpload,
+    });
+  }
+
+  logThirdPartyPayload('chat.completions.response', response.data);
+  return {
+    status: response.status,
+    data: response.data,
+  };
 }
 
 module.exports = {
   analyzeImage,
   editImage,
   generateText,
-  generateImage
+  generateImage,
+  generateImageByChatCompletions,
+  getUploadTaskStatus,
+  bindUploadTask,
+  startUploadTasks,
 };

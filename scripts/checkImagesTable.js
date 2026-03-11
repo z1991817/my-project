@@ -16,7 +16,8 @@ async function checkImagesTable() {
     // 查看数据
     console.log('\n=== 图片数据 ===');
     const [rows] = await db.query(`
-      SELECT i.id, i.url, i.description, i.prompt,
+      SELECT i.id, i.url, i.source_url, CHAR_LENGTH(i.thumbnail) AS thumbnail_len,
+             i.upload_task_id, i.upload_status, i.upload_error, i.description, i.prompt,
              i.category_id, c.name AS category_name,
              DATE_FORMAT(i.uploaded_at, '%Y-%m-%d %H:%i:%s') AS uploaded_at
       FROM images i
