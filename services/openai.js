@@ -7,6 +7,7 @@ const { randomUUID } = require('crypto');
 const { Transform } = require('stream');
 const { cos } = require('../middleware/cosUpload');
 const Image = require('../models/image');
+const ImageGenerationRecord = require('../models/imageGenerationRecord');
 
 const UPLOAD_LOG_FILE = path.join(process.cwd(), 'upload.log');
 const DOWNLOAD_TIMEOUT_MS = Number.parseInt(process.env.OPENAI_IMAGE_DOWNLOAD_TIMEOUT_MS || '15000', 10);
@@ -292,6 +293,115 @@ async function downloadAndUploadToCOS(imageUrl, options = {}) {
     uploadBytes: processed.uploadBytes,
     thumbnail,
   };
+}
+
+/**
+ * 流式下载并上传到COS（Stream Pipe 方式）
+ * 优势：内存占用极低，适合大文件和高并发场景
+ * @param {string} imageUrl - 图片URL
+ * @param {Object} options - 配置选项
+ * @param {boolean} options.compressBeforeUpload - 是否压缩（默认true，保持原格式压缩）
+ * @param {number} options.quality - 压缩质量（仅在压缩时生效）
+ * @returns {Promise<Object>} 上传结果
+ */
+async function downloadAndUploadToCOSWithStream(imageUrl, options = {}) {
+  const quality = normalizeUploadQuality(options.quality);
+  const compressBeforeUpload = options.compressBeforeUpload !== false; // 默认开启压缩
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 1. 发起下载请求（流式）
+      const response = await axios.get(imageUrl, {
+        responseType: 'stream',
+        timeout: DOWNLOAD_TIMEOUT_MS,
+      });
+
+      const contentType = response.headers['content-type'] || 'image/jpeg';
+      const ext = getExtFromContentType(contentType);
+
+      let uploadStream = response.data;
+      let finalContentType = contentType;
+      let finalExt = ext;
+
+      // 2. 如果需要压缩，创建压缩流（根据原格式压缩）
+      if (compressBeforeUpload) {
+        const sharpTransform = sharp({
+          failOn: 'none',
+          unlimited: true,
+        });
+
+        // 确保 quality 是整数类型
+        const qualityInt = Math.round(quality);
+
+        // 根据原格式进行压缩，保持格式不变
+        if (ext === 'png') {
+          sharpTransform.png({ quality: qualityInt, compressionLevel: 9 });
+        } else if (ext === 'webp') {
+          sharpTransform.webp({ quality: qualityInt });
+        } else if (ext === 'jpg' || ext === 'jpeg') {
+          sharpTransform.flatten({ background: '#ffffff' }).jpeg({
+            quality: qualityInt,
+            mozjpeg: true,
+            progressive: true,
+            chromaSubsampling: '4:2:0',
+          });
+        } else {
+          // 其他格式不压缩，保持原样
+          console.log(`[stream-upload] 格式 ${ext} 不支持压缩，保持原样`);
+        }
+
+        uploadStream = response.data.pipe(sharpTransform);
+      }
+
+      // 3. 收集流数据用于生成缩略图（可选）
+      const chunks = [];
+      let totalBytes = 0;
+
+      uploadStream.on('data', (chunk) => {
+        chunks.push(chunk);
+        totalBytes += chunk.length;
+      });
+
+      // 4. 直接流式上传到COS
+      const finalKey = buildCosObjectKey(finalExt);
+      cos.putObject(
+        {
+          Bucket: process.env.COS_BUCKET,
+          Region: process.env.COS_REGION,
+          Key: finalKey,
+          Body: uploadStream,
+          ContentType: finalContentType,
+        },
+        async (err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          const cosUrl = `https://${process.env.COS_BUCKET}.cos.${process.env.COS_REGION}.myqcloud.com/${finalKey}`;
+
+          // 5. 生成缩略图（从收集的数据）
+          let thumbnail = null;
+          try {
+            if (chunks.length > 0) {
+              const fullBuffer = Buffer.concat(chunks);
+              thumbnail = await generateThumbnailBase64FromBuffer(fullBuffer);
+            }
+          } catch (thumbError) {
+            console.warn('[stream-thumbnail-failed]', thumbError.message);
+          }
+
+          resolve({
+            cosUrl,
+            sourceBytes: null, // 流式模式无法精确统计原始大小
+            uploadBytes: totalBytes,
+            thumbnail,
+          });
+        }
+      );
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function uploadBase64ToCOS(base64Data, options = {}) {
@@ -587,6 +697,7 @@ function createUploadTask(payload, options = {}) {
     uploadOptions: {
       quality: options.quality,
       compressBeforeUpload: Boolean(options.compressBeforeUpload),
+      useStream: Boolean(options.useStream), // 是否使用流式上传
     },
     enqueued: false,
   };
@@ -646,17 +757,27 @@ async function runUploadTask(task) {
   task.attempts += 1;
   task.status = 'uploading';
   task.updatedAt = Date.now();
-  const startMsg = `[upload-start] task=${task.taskId} sourceType=${task.sourceType} attempt=${task.attempts}/${task.maxAttempts}`;
+  const startMsg = `[upload-start] task=${task.taskId} sourceType=${task.sourceType} useStream=${task.uploadOptions.useStream} attempt=${task.attempts}/${task.maxAttempts}`;
   console.log(startMsg);
   appendUploadLog(startMsg);
   await persistTaskStateToImage(task);
 
   const startTime = Date.now();
   try {
-    const uploadResult =
-      task.sourceType === 'base64'
-        ? await uploadBase64ToCOS(task.base64Data, task.uploadOptions)
-        : await downloadAndUploadToCOS(task.imageUrl, task.uploadOptions);
+    let uploadResult;
+
+    // 根据配置选择上传方式
+    if (task.sourceType === 'base64') {
+      // base64 只能用传统方式
+      uploadResult = await uploadBase64ToCOS(task.base64Data, task.uploadOptions);
+    } else {
+      // URL 可以选择流式或传统方式
+      if (task.uploadOptions.useStream) {
+        uploadResult = await downloadAndUploadToCOSWithStream(task.imageUrl, task.uploadOptions);
+      } else {
+        uploadResult = await downloadAndUploadToCOS(task.imageUrl, task.uploadOptions);
+      }
+    }
 
     task.status = 'success';
     task.cosUrl = uploadResult.cosUrl;
@@ -667,6 +788,17 @@ async function runUploadTask(task) {
     task.updatedAt = Date.now();
     releaseTaskPayload(task);
     await persistTaskStateToImage(task);
+
+    // 更新图片生成记录（如果存在）
+    try {
+      const record = await ImageGenerationRecord.findByUploadTaskId(task.taskId);
+      if (record) {
+        await ImageGenerationRecord.updateCosUrl(record.id, uploadResult.cosUrl, 'uploaded');
+        console.log(`[upload-success] 已更新生成记录: recordId=${record.id}`);
+      }
+    } catch (error) {
+      console.error(`[upload-success] 更新生成记录失败: ${error.message}`);
+    }
 
     const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
     const successMsg = `[upload-success] task=${task.taskId} duration=${durationSec}s source=${formatBytes(task.sourceBytes)} compressed=${formatBytes(task.uploadBytes)} url=${task.cosUrl}`;
@@ -1020,4 +1152,5 @@ module.exports = {
   getUploadTaskStatus,
   bindUploadTask,
   startUploadTasks,
+  createUploadTask, // 导出创建上传任务函数
 };

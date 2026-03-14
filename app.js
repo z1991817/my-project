@@ -10,6 +10,7 @@ require('./config/db');
 
 const v1Router = require('./routes/v1');
 const appRouter = require('./app/index');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 路由
 app.use('/api/v1', v1Router);
+app.use('/api/auth', authRouter);
 app.use('/app', appRouter);
 
 // 404
