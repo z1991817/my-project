@@ -1,0 +1,34 @@
+
+================================================================================
+[2026-03-16T04:59:17.742Z]
+API名称: 文生图 - /images/generations
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "一张超现实、杂志感的时尚摄影，置景于摄影棚。一位真实人类模特带着自然、自信的面部表情，站在巨大的、写实级3D动画角色米老鼠与米妮鼠之间。人类穿着一件粗针织毛衣，pastel 粉与奶油色调，高腰浅蓝色牛仔裤，干净白色极简运动鞋。米老鼠摆出其经典欢快姿势，展示真实质感手套、布料纹理。米妮站在稍侧，带着俏皮倾斜，穿着标志性波点裙与蝴蝶结。柔和、专业棚拍光线，3/4 身框，杂志封面级品质。",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 60146ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================

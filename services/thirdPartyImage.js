@@ -1,5 +1,6 @@
 const axios = require('axios');
 require('dotenv').config();
+const { logApiCall } = require('../utils/logger');
 
 /**
  * 第三方图片生成服务
@@ -54,16 +55,24 @@ async function generateImage(options = {}) {
     response_format: 'url',
   };
 
-  console.log('[ThirdPartyImage] 开始调用第三方API');
+  // 隐藏API Key的敏感信息
+  const maskedApiKey = process.env.TEST_API_KEY
+    ? `${process.env.TEST_API_KEY.substring(0, 8)}...${process.env.TEST_API_KEY.substring(process.env.TEST_API_KEY.length - 4)}`
+    : 'N/A';
+
+  const requestHeaders = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    Authorization: `Bearer ${maskedApiKey}`,
+  };
+
+  console.log('=== [ThirdPartyImage] 开始调用第三方API ===');
+  console.log('[ThirdPartyImage] 请求时间:', new Date().toISOString());
   console.log('[ThirdPartyImage] 请求URL:', url);
-  console.log('[ThirdPartyImage] 请求参数:', {
-    model,
-    n,
-    size,
-    quality,
-    style,
-    promptLength: prompt.length,
-  });
+  console.log('[ThirdPartyImage] 请求头:', requestHeaders);
+  console.log('[ThirdPartyImage] 请求体:', JSON.stringify(requestData, null, 2));
+
+  const startTime = Date.now();
 
   try {
     // 调用第三方接口
@@ -73,11 +82,30 @@ async function generateImage(options = {}) {
         Accept: 'application/json',
         Authorization: `Bearer ${process.env.TEST_API_KEY}`,
       },
-      timeout: 0,
+      timeout: 360000, // 6分钟超时
     });
 
-    console.log('[ThirdPartyImage] 第三方API响应成功');
+    const duration = Date.now() - startTime;
+
+    console.log('=== [ThirdPartyImage] 第三方API响应成功 ===');
+    console.log('[ThirdPartyImage] 响应时间:', new Date().toISOString());
+    console.log('[ThirdPartyImage] 请求耗时:', `${duration}ms`);
     console.log('[ThirdPartyImage] 响应状态:', response.status);
+    console.log('[ThirdPartyImage] 响应头:', JSON.stringify(response.headers, null, 2));
+    console.log('[ThirdPartyImage] 响应数据:', JSON.stringify(response.data, null, 2));
+
+    // 记录到日志文件
+    logApiCall({
+      apiName: '文生图 - /images/generations',
+      url,
+      requestHeaders,
+      requestBody: requestData,
+      success: true,
+      status: response.status,
+      responseHeaders: response.headers,
+      responseData: response.data,
+      duration,
+    });
 
     // 验证响应数据
     if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
@@ -90,11 +118,32 @@ async function generateImage(options = {}) {
       images: response.data.data,
     };
   } catch (error) {
-    console.error('[ThirdPartyImage] 第三方API调用失败');
+    const duration = Date.now() - startTime;
+
+    console.error('=== [ThirdPartyImage] 第三方API调用失败 ===');
+    console.error('[ThirdPartyImage] 失败时间:', new Date().toISOString());
+    console.error('[ThirdPartyImage] 请求耗时:', `${duration}ms`);
+    console.error('[ThirdPartyImage] 错误类型:', error.code || 'UNKNOWN');
     console.error('[ThirdPartyImage] 错误信息:', error.message);
+
+    // 记录到日志文件
+    logApiCall({
+      apiName: '文生图 - /images/generations',
+      url,
+      requestHeaders,
+      requestBody: requestData,
+      success: false,
+      status: error.response?.status,
+      responseHeaders: error.response?.headers,
+      responseData: error.response?.data,
+      duration,
+      errorType: error.code || 'UNKNOWN',
+      errorMessage: error.message,
+    });
 
     if (error.response) {
       console.error('[ThirdPartyImage] 响应状态:', error.response.status);
+      console.error('[ThirdPartyImage] 响应头:', JSON.stringify(error.response.headers, null, 2));
       console.error('[ThirdPartyImage] 响应数据:', JSON.stringify(error.response.data, null, 2));
 
       // 包装错误信息
@@ -102,6 +151,13 @@ async function generateImage(options = {}) {
       apiError.statusCode = error.response.status;
       apiError.responseData = error.response.data;
       throw apiError;
+    } else if (error.request) {
+      console.error('[ThirdPartyImage] 未收到响应');
+      console.error('[ThirdPartyImage] 请求配置:', JSON.stringify({
+        url: error.config?.url,
+        method: error.config?.method,
+        timeout: error.config?.timeout,
+      }, null, 2));
     }
 
     throw error;
@@ -161,34 +217,105 @@ async function imageToImage(options = {}) {
     messages: [{ role: 'user', content }]
   };
 
-  console.log('[ThirdPartyImage.imageToImage] 调用第三方API');
+  // 隐藏API Key的敏感信息
+  const maskedApiKey = process.env.TEST_API_KEY
+    ? `${process.env.TEST_API_KEY.substring(0, 8)}...${process.env.TEST_API_KEY.substring(process.env.TEST_API_KEY.length - 4)}`
+    : 'N/A';
+
+  const apiUrl = `${process.env.TEST_BASE_URL}/chat/completions`;
+
+  const requestHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${maskedApiKey}`
+  };
+
+  console.log('=== [ThirdPartyImage.imageToImage] 开始调用第三方API ===');
+  console.log('[ThirdPartyImage.imageToImage] 请求时间:', new Date().toISOString());
+  console.log('[ThirdPartyImage.imageToImage] 请求URL:', apiUrl);
   console.log('[ThirdPartyImage.imageToImage] 图片数量:', imageUrl.length);
-  console.log('[ThirdPartyImage.imageToImage] 第三方API入参:', JSON.stringify(requestData, null, 2));
+  console.log('[ThirdPartyImage.imageToImage] 请求头:', requestHeaders);
+  console.log('[ThirdPartyImage.imageToImage] 请求体:', JSON.stringify(requestData, null, 2));
+
+  const startTime = Date.now();
 
   try {
     const response = await axios.post(
-      `${process.env.TEST_BASE_URL}/chat/completions`,
+      apiUrl,
       requestData,
       {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.TEST_API_KEY}`
         },
-        timeout: 0
+        timeout: 360000 // 6分钟超时
       }
     );
 
-    console.log('[ThirdPartyImage.imageToImage] API响应成功');
+    const duration = Date.now() - startTime;
+
+    console.log('=== [ThirdPartyImage.imageToImage] API响应成功 ===');
+    console.log('[ThirdPartyImage.imageToImage] 响应时间:', new Date().toISOString());
+    console.log('[ThirdPartyImage.imageToImage] 请求耗时:', `${duration}ms`);
+    console.log('[ThirdPartyImage.imageToImage] 响应状态:', response.status);
+    console.log('[ThirdPartyImage.imageToImage] 响应头:', JSON.stringify(response.headers, null, 2));
     console.log('[ThirdPartyImage.imageToImage] 响应数据:', JSON.stringify(response.data, null, 2));
+
+    // 记录到日志文件
+    logApiCall({
+      apiName: '图生图 - /chat/completions',
+      url: apiUrl,
+      requestHeaders,
+      requestBody: requestData,
+      success: true,
+      status: response.status,
+      responseHeaders: response.headers,
+      responseData: response.data,
+      duration,
+    });
+
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('[ThirdPartyImage.imageToImage] API调用失败:', error.message);
+    const duration = Date.now() - startTime;
+
+    console.error('=== [ThirdPartyImage.imageToImage] API调用失败 ===');
+    console.error('[ThirdPartyImage.imageToImage] 失败时间:', new Date().toISOString());
+    console.error('[ThirdPartyImage.imageToImage] 请求耗时:', `${duration}ms`);
+    console.error('[ThirdPartyImage.imageToImage] 错误类型:', error.code || 'UNKNOWN');
+    console.error('[ThirdPartyImage.imageToImage] 错误信息:', error.message);
+
+    // 记录到日志文件
+    logApiCall({
+      apiName: '图生图 - /chat/completions',
+      url: apiUrl,
+      requestHeaders,
+      requestBody: requestData,
+      success: false,
+      status: error.response?.status,
+      responseHeaders: error.response?.headers,
+      responseData: error.response?.data,
+      duration,
+      errorType: error.code || 'UNKNOWN',
+      errorMessage: error.message,
+    });
+
     if (error.response) {
+      console.error('[ThirdPartyImage.imageToImage] 响应状态:', error.response.status);
+      console.error('[ThirdPartyImage.imageToImage] 响应头:', JSON.stringify(error.response.headers, null, 2));
+      console.error('[ThirdPartyImage.imageToImage] 响应数据:', JSON.stringify(error.response.data, null, 2));
+
       const apiError = new Error(`第三方API调用失败: ${error.response.status}`);
       apiError.statusCode = error.response.status;
       apiError.responseData = error.response.data;
       throw apiError;
+    } else if (error.request) {
+      console.error('[ThirdPartyImage.imageToImage] 未收到响应');
+      console.error('[ThirdPartyImage.imageToImage] 请求配置:', JSON.stringify({
+        url: error.config?.url,
+        method: error.config?.method,
+        timeout: error.config?.timeout,
+      }, null, 2));
     }
+
     throw error;
   }
 }
