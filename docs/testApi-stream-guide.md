@@ -285,8 +285,8 @@ const pollInterval = setInterval(async () => {
 
 ```env
 # 第三方API配置
-TEST_BASE_URL=https://api.example.com
-TEST_API_KEY=your-api-key
+CREATE_BASE_URL=https://api.example.com
+GPT_IMAGE_KEY=your-api-key
 
 # COS配置
 COS_BUCKET=your-bucket

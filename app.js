@@ -6,16 +6,31 @@ const logger = require('morgan');
 const cors = require('cors');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('./config/env');
 require('./config/db');
 
 const v1Router = require('./routes/v1');
 const appRouter = require('./app/index');
 const authRouter = require('./routes/auth');
+const { globalLimiter } = require('./middleware/rateLimiter');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-// CORS
-app.use(cors());
+// CORS 配置
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS 不允许来自 ${origin} 的请求`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // 日志
 app.use(logger('dev'));
@@ -25,8 +40,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// 设置请求超时时间为10分钟（600秒）
+// 适配图片生成等长耗时操作
+app.use((req, res, next) => {
+  req.setTimeout(600000); // 请求超时：10分钟
+  res.setTimeout(600000); // 响应超时：10分钟
+  next();
+});
+
 // 静态资源
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 速率限制
+app.use('/api', globalLimiter);
+app.use('/app', globalLimiter);
 
 // 路由
 app.use('/api/v1', v1Router);
@@ -39,24 +66,6 @@ app.use((_req, _res, next) => {
 });
 
 // 全局错误处理
-app.use((err, req, res, _next) => {
-  const status = err.status || 500;
-  const message = err.message || '服务器内部错误';
-
-  // 非 404 错误打印日志
-  if (status >= 500) {
-    console.error('[Error]', err);
-  }
-
-  // API 请求返回 JSON
-  if (req.path.startsWith('/api/v1') || req.path.startsWith('/app') || req.headers['content-type']?.includes('application/json')) {
-    return res.status(status).json({ code: status, message });
-  }
-
-  res.locals.message = message;
-  res.locals.error = app.get('env') === 'development' ? err : {};
-  res.status(status);
-  res.render('error');
-});
+app.use(errorHandler);
 
 module.exports = app;

@@ -1,0 +1,116 @@
+
+================================================================================
+[2026-03-20T09:02:19.916Z]
+API名称: Banana文生图 - generateContent
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=sk-2GIKv...4xLy
+请求头: {
+  "Content-Type": "application/json"
+}
+请求体: {
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "一張 4K 高畫質的二次元動漫風格特寫肖像。主角是一位留著齊劉海與長黑髮的年輕少女，戴著精緻的銀色細長垂墜耳環，穿著深色高領毛衣。她呈現半側臉視角，神情平靜、清冷且帶有神祕的憂鬱感。背景是極致的深黑色，沒有雜物。光線採用強烈的戲劇性高對比度邊緣光（明暗對比法），一道強光從左側照亮她的側臉輪廓、鼻樑、嘴唇和髮絲邊緣，而她的臉部細節和身體的大部分則完美隱藏在深邃的陰影中，眼神挑衅的看着镜头。電影級光影，極簡暗黑美學，氛圍感，大師傑作."
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "responseModalities": [
+      "TEXT",
+      "IMAGE"
+    ],
+    "imageConfig": {
+      "aspectRatio": "9:16",
+      "numberOfImages": 1
+    }
+  }
+}
+
+【响应信息】
+请求耗时: 7957ms
+错误类型: UNKNOWN
+错误信息: Banana API调用失败: 429
+响应状态: 429
+响应头: {
+  "server": "nginx",
+  "date": "Fri, 20 Mar 2026 09:02:19 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "195",
+  "connection": "close",
+  "content-security-policy": "frame-ancestors 'self'",
+  "x-api-request-id": "20260320170212748246032Fzna3121",
+  "x-frame-options": "SAMEORIGIN"
+}
+响应数据: {
+  "error": {
+    "message": "gemini image generation failed: PROHIBITED_CONTENT (request id: 20260320170212748246032Fzna3121)",
+    "type": "channel_error",
+    "param": "",
+    "code": "channel:image_generation_failed"
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-20T09:03:13.467Z]
+API名称: Banana文生图 - generateContent
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=sk-2GIKv...4xLy
+请求头: {
+  "Content-Type": "application/json"
+}
+请求体: {
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "一張 4K 高畫質的二次元動漫風格特寫肖像。主角是一位留著齊劉海與長黑髮的年輕少女，戴著精緻的銀色細長垂墜耳環，穿著深色高領毛衣。她呈現半側臉視角，神情平靜、清冷且帶有神祕的憂鬱感。背景是極致的深黑色，沒有雜物。光線採用強烈的戲劇性高對比度邊緣光（明暗對比法），一道強光從左側照亮她的側臉輪廓、鼻樑、嘴唇和髮絲邊緣，而她的臉部細節和身體的大部分則完美隱藏在深邃的陰影中，眼神挑衅的看着镜头。電影級光影，極簡暗黑美學，氛圍感，大師傑作."
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "responseModalities": [
+      "TEXT",
+      "IMAGE"
+    ],
+    "imageConfig": {
+      "aspectRatio": "9:16",
+      "numberOfImages": 1
+    }
+  }
+}
+
+【响应信息】
+请求耗时: 7050ms
+错误类型: UNKNOWN
+错误信息: Banana API调用失败: 429
+响应状态: 429
+响应头: {
+  "server": "nginx",
+  "date": "Fri, 20 Mar 2026 09:03:13 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "195",
+  "connection": "keep-alive",
+  "content-security-policy": "frame-ancestors 'self'",
+  "x-api-request-id": "20260320170307477428196StO7y6mp",
+  "x-frame-options": "SAMEORIGIN"
+}
+响应数据: {
+  "error": {
+    "message": "gemini image generation failed: PROHIBITED_CONTENT (request id: 20260320170307477428196StO7y6mp)",
+    "type": "channel_error",
+    "param": "",
+    "code": "channel:image_generation_failed"
+  }
+}
+================================================================================

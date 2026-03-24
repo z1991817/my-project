@@ -1,0 +1,1699 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"TextToImageGenerateBody": {
+				"description": "文生图请求体",
+				"properties": {
+					"prompt": {
+						"type": "string",
+						"description": "图片生成提示词（可选，不传则使用默认提示词）"
+					},
+					"size": {
+						"type": "string",
+						"description": "图片尺寸（可选，默认 1024x1536）"
+					},
+					"model": {
+						"type": "string",
+						"description": "模型名称（可选，默认 gpt-image-1.5-all）"
+					},
+					"n": {
+						"type": "number",
+						"format": "double",
+						"description": "生成图片数量（可选，默认 1）"
+					},
+					"quality": {
+						"type": "string",
+						"description": "图片质量（可选，默认 medium，支持：low、medium、high）"
+					},
+					"style": {
+						"type": "string",
+						"description": "图片风格（可选，默认 vivid，支持：vivid、natural）"
+					},
+					"uploadToCos": {
+						"type": "boolean",
+						"description": "是否上传到COS（可选，默认 true）"
+					},
+					"useStream": {
+						"type": "boolean",
+						"description": "是否使用流式上传（可选，默认 true）"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ImageToImageBody": {
+				"description": "图生图请求体",
+				"properties": {
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"size": {
+						"type": "string",
+						"description": "尺寸比例（如 \"4:3\"）"
+					},
+					"imageUrl": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "图片URL数组"
+					},
+					"uploadToCos": {
+						"type": "boolean",
+						"description": "是否上传到COS（可选，默认 true）"
+					},
+					"useStream": {
+						"type": "boolean",
+						"description": "是否使用流式上传（可选，默认 true）"
+					}
+				},
+				"required": [
+					"prompt",
+					"imageUrl"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"AnalyzeImageBody": {
+				"description": "图片分析请求体",
+				"properties": {
+					"imageUrl": {
+						"type": "string",
+						"description": "图片URL"
+					},
+					"prompt": {
+						"type": "string",
+						"description": "分析提示词（可选）"
+					}
+				},
+				"required": [
+					"imageUrl"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"GenerateTextBody": {
+				"description": "文本生成请求体",
+				"properties": {
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"systemPrompt": {
+						"type": "string",
+						"description": "系统提示词（可选）"
+					}
+				},
+				"required": [
+					"prompt"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"OpenaiGenerateImageBody": {
+				"description": "DALL-E 图片生成请求体",
+				"properties": {
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"model": {
+						"type": "string",
+						"description": "模型（可选）"
+					},
+					"n": {
+						"type": "number",
+						"format": "double",
+						"description": "生成数量（可选）"
+					},
+					"size": {
+						"type": "string",
+						"description": "尺寸（可选）"
+					},
+					"response_format": {
+						"type": "string",
+						"description": "响应格式（可选）"
+					},
+					"style": {
+						"type": "string",
+						"description": "风格（可选）"
+					},
+					"quality": {
+						"type": "string",
+						"description": "质量（可选）"
+					},
+					"uploadToCos": {
+						"type": "boolean",
+						"description": "是否上传到COS（可选，默认 true）"
+					},
+					"includeBase64InResponse": {
+						"type": "boolean",
+						"description": "是否在响应中包含 Base64（可选，默认 false）"
+					},
+					"includeThumbnailInResponse": {
+						"type": "boolean",
+						"description": "是否在响应中包含缩略图（可选）"
+					},
+					"saveToDb": {
+						"type": "boolean",
+						"description": "是否保存到数据库（可选，默认 true）"
+					},
+					"title": {
+						"type": "string",
+						"description": "标题（可选）"
+					},
+					"description": {
+						"type": "string",
+						"description": "描述（可选）"
+					},
+					"category_id": {
+						"type": "number",
+						"format": "double",
+						"description": "分类ID（可选）"
+					}
+				},
+				"required": [
+					"prompt"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"GenerateImageByChatBody": {
+				"description": "Chat Completions 图片生成请求体",
+				"properties": {
+					"session_id": {
+						"type": "string",
+						"description": "会话ID（可选，不传则创建新会话）"
+					},
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"imageUrl": {
+						"type": "string",
+						"description": "参考图片URL（可选）"
+					},
+					"messages": {
+						"items": {
+							"properties": {
+								"content": {},
+								"role": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"content",
+								"role"
+							],
+							"type": "object"
+						},
+						"type": "array",
+						"description": "自定义消息数组（可选，优先级高于 prompt）"
+					},
+					"model": {
+						"type": "string",
+						"description": "模型（可选，默认 gpt-4o-image）"
+					},
+					"group": {
+						"type": "string",
+						"description": "分组（可选）"
+					},
+					"stream": {
+						"type": "boolean",
+						"description": "是否流式返回（可选，默认 false）"
+					},
+					"uploadToCos": {
+						"type": "boolean",
+						"description": "是否上传到COS（可选，默认 true）"
+					},
+					"temperature": {
+						"type": "number",
+						"format": "double",
+						"description": "温度参数（可选）"
+					},
+					"top_p": {
+						"type": "number",
+						"format": "double",
+						"description": "top_p 参数（可选）"
+					},
+					"frequency_penalty": {
+						"type": "number",
+						"format": "double",
+						"description": "frequency_penalty 参数（可选）"
+					},
+					"presence_penalty": {
+						"type": "number",
+						"format": "double",
+						"description": "presence_penalty 参数（可选）"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"CreateImageBody": {
+				"description": "创建图片请求体",
+				"properties": {
+					"url": {
+						"type": "string",
+						"description": "图片URL"
+					},
+					"description": {
+						"type": "string",
+						"description": "图片描述"
+					},
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"category_id": {
+						"type": "number",
+						"format": "double",
+						"description": "分类ID"
+					},
+					"title": {
+						"type": "string",
+						"description": "标题"
+					}
+				},
+				"required": [
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateImageBody": {
+				"description": "更新图片请求体",
+				"properties": {
+					"url": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"prompt": {
+						"type": "string"
+					},
+					"category_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"title": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"CreateCategoryBody": {
+				"description": "创建分类请求体",
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "分类名称"
+					},
+					"description": {
+						"type": "string",
+						"description": "分类描述"
+					},
+					"sort_order": {
+						"type": "number",
+						"format": "double",
+						"description": "排序号"
+					},
+					"status": {
+						"type": "number",
+						"format": "double",
+						"description": "状态：1启用 0禁用"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateCategoryBody": {
+				"description": "更新分类请求体",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"sort_order": {
+						"type": "number",
+						"format": "double"
+					},
+					"status": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateSortOrderBody": {
+				"description": "更新排序号请求体",
+				"properties": {
+					"sort_order": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"sort_order"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"BananaGenerateImageBody": {
+				"description": "Banana 文生图请求体",
+				"properties": {
+					"model": {
+						"type": "string",
+						"description": "模型名称"
+					},
+					"prompt": {
+						"type": "string",
+						"description": "提示词"
+					},
+					"aspectRatio": {
+						"type": "string",
+						"description": "尺寸比例（可选，默认 \"16:9\"）"
+					}
+				},
+				"required": [
+					"model",
+					"prompt"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"LoginBody": {
+				"description": "登录请求体",
+				"properties": {
+					"username": {
+						"type": "string",
+						"description": "用户名"
+					},
+					"password": {
+						"type": "string",
+						"description": "密码"
+					}
+				},
+				"required": [
+					"username",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"SendCodeBody": {
+				"description": "发送验证码请求体",
+				"properties": {
+					"email": {
+						"type": "string",
+						"description": "邮箱地址"
+					}
+				},
+				"required": [
+					"email"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"RegisterBody": {
+				"description": "注册请求体",
+				"properties": {
+					"username": {
+						"type": "string",
+						"description": "用户名"
+					},
+					"email": {
+						"type": "string",
+						"description": "邮箱"
+					},
+					"password": {
+						"type": "string",
+						"description": "密码（至少6位）"
+					},
+					"code": {
+						"type": "string",
+						"description": "邮箱验证码"
+					}
+				},
+				"required": [
+					"username",
+					"email",
+					"password",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"AdminLoginBody": {
+				"description": "管理员登录请求体",
+				"properties": {
+					"username": {
+						"type": "string",
+						"description": "用户名"
+					},
+					"password": {
+						"type": "string",
+						"description": "密码"
+					}
+				},
+				"required": [
+					"username",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": true
+			}
+		},
+		"securitySchemes": {
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"description": "普通用户认证 Token"
+			},
+			"adminJwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"description": "管理员认证 Token"
+			}
+		}
+	},
+	"info": {
+		"title": "my-project",
+		"version": "0.0.0",
+		"contact": {}
+	},
+	"paths": {
+		"/app/text-to-image": {
+			"post": {
+				"operationId": "GenerateImageAndUpload",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "文本生成图片并上传到COS\nPOST /app/text-to-image\n\n工作流程：\n1. 调用第三方API生成图片\n2. 立即返回第三方URL + taskId\n3. 后台异步上传到COS\n4. 前端可通过 taskId 查询上传状态",
+				"tags": [
+					"文生图"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TextToImageGenerateBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/text-to-image/tasks/{taskId}": {
+			"get": {
+				"operationId": "GetUploadTaskStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "查询上传任务状态\nGET /app/text-to-image/tasks/:taskId",
+				"tags": [
+					"文生图"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/app/text-to-image/records": {
+			"get": {
+				"operationId": "GetRecordsByUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "查询当前用户的生成历史记录\nGET /app/text-to-image/records",
+				"tags": [
+					"文生图"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "generation_type",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/app/text-to-image/records/{sessionId}": {
+			"get": {
+				"operationId": "GetRecordBySession",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "根据 session_id 查询单条记录\nGET /app/text-to-image/records/:sessionId",
+				"tags": [
+					"文生图"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "sessionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/app/text-to-image/image-to-image": {
+			"post": {
+				"operationId": "ImageToImage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "图生图接口\nPOST /app/text-to-image/image-to-image",
+				"tags": [
+					"文生图"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ImageToImageBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/analyzeImage": {
+			"post": {
+				"operationId": "AnalyzeImage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "图片分析\nPOST /app/analyzeImage",
+				"tags": [
+					"OpenAI"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AnalyzeImageBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/generateText": {
+			"post": {
+				"operationId": "GenerateText",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "文本生成\nPOST /app/generateText",
+				"tags": [
+					"OpenAI"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GenerateTextBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/generateImage": {
+			"post": {
+				"operationId": "GenerateImage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "DALL-E 图片生成\nPOST /app/generateImage",
+				"tags": [
+					"OpenAI"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OpenaiGenerateImageBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/textToimageNew": {
+			"post": {
+				"operationId": "GenerateImageByChatCompletions",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "Chat Completions 图片生成（支持多轮对话 + SSE 流式）\nPOST /app/textToimageNew\n注意：SSE 流式响应时直接操作 Express res，绕过 tsoa 响应序列化",
+				"tags": [
+					"OpenAI"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GenerateImageByChatBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/textToImage/tasks/{taskId}": {
+			"get": {
+				"operationId": "GetUploadTaskStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "查询上传任务状态\nGET /app/textToImage/tasks/:taskId",
+				"tags": [
+					"OpenAI"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/app/images": {
+			"get": {
+				"operationId": "List",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取图片列表（分页）\nGET /app/images",
+				"tags": [
+					"图片管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "category_id",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "description",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "title",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "创建图片（通过URL）\nPOST /app/images",
+				"tags": [
+					"图片管理"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateImageBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/images/{id}": {
+			"get": {
+				"operationId": "Detail",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取图片详情\nGET /app/images/:id",
+				"tags": [
+					"图片管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "更新图片\nPUT /app/images/:id",
+				"tags": [
+					"图片管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateImageBody"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "删除图片\nDELETE /app/images/:id",
+				"tags": [
+					"图片管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/app/gallery": {
+			"get": {
+				"operationId": "GetGalleryList",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取画廊列表（公开，按创建时间倒序）\nGET /app/gallery",
+				"tags": [
+					"画廊"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "generation_type",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "status",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/app/my-creations": {
+			"get": {
+				"operationId": "GetMyCreations",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取当前用户的创作列表\nGET /app/my-creations\n需要认证",
+				"tags": [
+					"画廊"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/app/categories": {
+			"get": {
+				"operationId": "List",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取分类列表（分页）\nGET /app/categories",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "status",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "sortBy",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "sortOrder",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "创建分类\nPOST /app/categories",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCategoryBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/categories/enabled": {
+			"get": {
+				"operationId": "GetAllEnabled",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取所有启用分类（下拉使用）\nGET /app/categories/enabled",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/app/categories/{id}": {
+			"get": {
+				"operationId": "Detail",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取分类详情\nGET /app/categories/:id",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "更新分类\nPUT /app/categories/:id",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCategoryBody"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "删除分类\nDELETE /app/categories/:id",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/app/categories/{id}/sort": {
+			"put": {
+				"operationId": "UpdateSortOrder",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "更新分类排序号\nPUT /app/categories/:id/sort",
+				"tags": [
+					"分类管理"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateSortOrderBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/banana-CreateImage": {
+			"post": {
+				"operationId": "GenerateImage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "Banana 文生图 - 生成图片并上传到 COS\nPOST /app/banana-CreateImage\n需要认证",
+				"tags": [
+					"Banana 文生图"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BananaGenerateImageBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "用户登录\nPOST /app/login",
+				"tags": [
+					"用户认证"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/me": {
+			"get": {
+				"operationId": "GetCurrentUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取当前用户信息\nGET /app/me",
+				"tags": [
+					"用户认证"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/app/send-code": {
+			"post": {
+				"operationId": "SendCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "发送邮箱验证码\nPOST /app/send-code",
+				"tags": [
+					"用户认证"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SendCodeBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/app/register": {
+			"post": {
+				"operationId": "Register",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "用户注册\nPOST /app/register",
+				"tags": [
+					"用户认证"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegisterBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/admin/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "管理员登录\nPOST /api/v1/admin/login",
+				"tags": [
+					"管理员"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AdminLoginBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/admin/profile": {
+			"get": {
+				"operationId": "Profile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "获取管理员资料\nGET /api/v1/admin/profile",
+				"tags": [
+					"管理员"
+				],
+				"security": [
+					{
+						"adminJwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/v1/admin/logout": {
+			"post": {
+				"operationId": "Logout",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "管理员登出\nPOST /api/v1/admin/logout",
+				"tags": [
+					"管理员"
+				],
+				"security": [
+					{
+						"adminJwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/v1/admin/users": {
+			"get": {
+				"operationId": "ListUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "查询管理员用户列表\nGET /api/v1/admin/users",
+				"tags": [
+					"管理员"
+				],
+				"security": [
+					{
+						"adminJwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "username",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

@@ -1,0 +1,33 @@
+{
+  "entryFile": "src/app.ts",
+  "noImplicitAdditionalProperties": "ignore",
+  "controllerPathGlobs": ["src/controllers/**/*Controller.ts"],
+  "spec": {
+    "outputDirectory": "public/swagger",
+    "specVersion": 3,
+    "info": {
+      "title": "artImg Pro API",
+      "version": "0.0.1",
+      "description": "artImg Pro - AI 图片处理工具 API 文档"
+    },
+    "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "普通用户认证 Token"
+      },
+      "adminJwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "管理员认证 Token"
+      }
+    },
+    "basePath": "/"
+  },
+  "routes": {
+    "routesDir": "build",
+    "authenticationModule": "src/middleware/authentication.ts"
+  }
+}

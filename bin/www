@@ -22,6 +22,14 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+ * 设置服务器超时时间为10分钟（600秒）
+ * 默认是2分钟，对于图片生成等耗时操作需要更长时间
+ */
+server.timeout = 600000; // 10分钟
+server.keepAliveTimeout = 610000; // 略大于timeout
+server.headersTimeout = 620000; // 略大于keepAliveTimeout
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 

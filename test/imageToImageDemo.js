@@ -10,17 +10,17 @@ async function testImageToImage() {
   console.log('=== 开始测试图生图接口 ===\n');
 
   // 1. 检查环境变量
-  if (!process.env.TEST_BASE_URL) {
-    console.error('❌ 缺少环境变量: TEST_BASE_URL');
+  if (!process.env.CREATE_BASE_URL) {
+    console.error('❌ 缺少环境变量: CREATE_BASE_URL');
     return;
   }
-  if (!process.env.TEST_API_KEY) {
-    console.error('❌ 缺少环境变量: TEST_API_KEY');
+  if (!process.env.TEST_API_GPT_IMAGE_KEYKEY) {
+    console.error('❌ 缺少环境变量: GPT_IMAGE_KEY');
     return;
   }
 
   console.log('✅ 环境变量检查通过');
-  console.log('API地址:', process.env.TEST_BASE_URL);
+  console.log('API地址:', process.env.CREATE_BASE_URL);
   console.log('');
 
   // 2. 模拟前端传入的参数
@@ -85,12 +85,12 @@ async function testImageToImage() {
     const startTime = Date.now();
 
     const response = await axios.post(
-      `${process.env.TEST_BASE_URL}/chat/completions`,
+      `${process.env.CREATE_BASE_URL}/chat/completions`,
       requestData,
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.TEST_API_KEY}`
+          'Authorization': `Bearer ${process.env.GPT_IMAGE_KEY}`
         },
         timeout: 0
       }

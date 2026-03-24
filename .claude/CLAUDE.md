@@ -1,5 +1,6 @@
 ## CLAUDE.md
- 
+- 不要阅读我的.env文件，把新增一些配置信息放到.env.example文件中
+- 文生图与图生图接口均已配置，后续开发调用第三方接口时，参考 buildExternalRequestConfig方法 和 externalHttpClient 方法，他们均已配置 proxy: false, 这个很重要，如果不配置本地代理在60秒请求时直接断开请求！
 ## 项目概述
  
 **项目名称** artImg Pro - Ai 图片处理工具 服务端  
@@ -19,6 +20,8 @@
 - npm run dev
  
 ## 架构和约束
+- 不要阅读我的.env文件，把新增一些配置信息放到.env.example文件中
+- 文生图与图生图接口均已配置，后续开发调用第三方接口时，参考 buildExternalRequestConfig方法 和 externalHttpClient 方法，他们均已配置 proxy: false, 这个很重要，如果不配置本地代理在60秒请求时直接断开请求！
 - 所有组件必须使用TypeScript
 - 组件文件采用PascalCase命名
 - 所有对话必须使用中文交流

@@ -1,0 +1,1568 @@
+
+================================================================================
+[2026-03-17T05:45:57.493Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60168ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T05:50:42.642Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60161ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T05:53:57.699Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成绿色柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60163ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T05:56:28.346Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60161ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T06:01:31.913Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "小狗换成小鸡 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-14/image-1773468489240-641337143.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60166ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T06:07:47.047Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "飞翔的小鸟",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1792x1024 ",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 20546ms
+响应状态: 200
+响应头: {
+  "connection": "close",
+  "content-length": "263",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "content-type": "application/json; charset=utf-8",
+  "date": "Tue, 17 Mar 2026 06:07:48 GMT",
+  "server": "nginx",
+  "strict-transport-security": "max-age=31536000",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317140728979433228oES7yjWY",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "2026031706072950622225YhiaGLyJ"
+}
+响应数据: {
+  "created": 1773727668,
+  "data": [
+    {
+      "revised_prompt": "飞翔的小鸟",
+      "url": "https://pro.filesystem.site/cdn/20260317/f6c37c6f6c47895a3937b267d9ab93.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6260,
+    "input_tokens": 10,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 10
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T06:11:02.657Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60161ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T06:52:41.818Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60166ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T07:22:32.922Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成果粒橙，整张图的风格换成果粒橙的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 58619ms
+响应状态: 200
+响应头: {
+  "connection": "close",
+  "transfer-encoding": "chunked",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "content-type": "application/json; charset=utf-8",
+  "date": "Tue, 17 Mar 2026 07:22:34 GMT",
+  "server": "nginx",
+  "strict-transport-security": "max-age=31536000",
+  "vary": "Accept-Encoding, Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317152136798069891jJG9of2F",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "2026031707214017885270eZQQq5LG"
+}
+响应数据: {
+  "id": "chatcmpl-89De0Nf8FNmYaeGKCFep9jVjrSSOy",
+  "object": "chat.completion",
+  "created": 1773732153,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```\n{\n  \"prompt\": \"把椰奶两个字换成果粒橙，整张图的风格换成果粒橙的风格 尺寸[1792x1024 ]\",\n  \"ratio\": \"16:9\",\n  \"n\": 1\n}\n```\n\n> ID: `b6e3430e-6dc1-413d-b346-b251ceab151c`\n>[数据预览](https://pro.asyncdata.net/web/b6e3430e-6dc1-413d-b346-b251ceab151c) | [原始数据](https://pro.asyncdata.net/source/b6e3430e-6dc1-413d-b346-b251ceab151c)\n\n>🕐 排队中.\n\n>⚡ 生成中.......\n\n>🏃‍ 进度 22......78..[100](https://videos.openai.com/az/vg-assets/task_01kkxarevgectsmzz231ev9t2d%2F1773732148_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=5e5fc900-07cf-43e7-ab5b-314c0d877bb0&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T16%3A18%3A53Z&ske=2026-03-23T16%3A23%3A53Z&sks=b&skv=2026-02-06&sig=PzsdCKMajWBFzneU69xAg%2BQ0UXLPPUhNHIRmM3VNv0c%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxarg8sej8a2de9591b9xns](https://pro.filesystem.site/cdn/20260317/11018b640bbe5d44e6aac87caca393.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/11018b640bbe5d44e6aac87caca393.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 141,
+    "completion_tokens": 527,
+    "total_tokens": 668,
+    "prompt_tokens_details": {
+      "text_tokens": 134
+    },
+    "completion_tokens_details": {
+      "content_tokens": 527
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T07:27:44.774Z]
+API名称: 图生图 - /chat/completions
+状态: 失败
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 60135ms
+错误类型: ERR_BAD_RESPONSE
+错误信息: Request failed with status code 502
+响应状态: 502
+响应头: {
+  "connection": "close",
+  "content-length": "0"
+}
+响应数据: ""
+================================================================================
+
+================================================================================
+[2026-03-17T08:06:53.496Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632981712-72882902.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 109387ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:06:54 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317160507313316681FtW0Oa2F",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317080509982732535LLHFC1XE",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DcHhOH4mUYDezJNkEEKSZipQ9rQ",
+  "object": "chat.completion",
+  "created": 1773734814,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"把椰奶两个字换成雷碧，整张图的风格换成雪碧柠檬的风格 尺寸[1792x1024 ]\",\n  \"ratio\": \"16:9\",\n  \"n\": 1\n}\n```\n\n> ID: `52b06b89-b1a3-4397-9223-c98b77393b30`\n>[数据预览](https://pro.asyncdata.net/web/52b06b89-b1a3-4397-9223-c98b77393b30) | [原始数据](https://pro.asyncdata.net/source/52b06b89-b1a3-4397-9223-c98b77393b30)\n\n>🕐 排队中...\n\n>⚡ 生成中.....\n\n>🏃‍ 进度 23.....71...78...[100](https://videos.openai.com/az/vg-assets/task_01kkxd9j7zfwdv0gfc8a4jeyx4%2F1773734807_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=cfbc986b-d2bc-4088-8b71-4f962129715b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T12%3A15%3A02Z&ske=2026-03-23T12%3A20%3A02Z&sks=b&skv=2026-02-06&sig=0F4%2BVz79TBCk4KlfPzRx4c6Jg1xXkLTuNsNTRJbZIhQ%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxd9nbberzbnanq804xefvw](https://pro.filesystem.site/cdn/20260317/0e0184e91a309cdbe5197ca3ae1e43.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/0e0184e91a309cdbe5197ca3ae1e43.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 141,
+    "completion_tokens": 545,
+    "total_tokens": 686,
+    "prompt_tokens_details": {
+      "text_tokens": 134
+    },
+    "completion_tokens_details": {
+      "content_tokens": 545
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T08:36:41.708Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "Create step-by-step recipe infographic for creamy garlic mushroom pasta, top-down view, minimal style on white background, ingredient photos labeled: \"200g spaghetti\", \"150g mushrooms\", \"3 garlic cloves\", \"200ml cream\", \"1 tbsp olive oil\", \"parmesan\", \"parsley\", dotted lines showing process steps with icons (boiling pot, sauté pan, mixing), final plated pasta shot at the bottom",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1792x1024 ",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 56716ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:36:43 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "643",
+  "connection": "keep-alive",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317163548524394775nuQzTVG8",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "2026031708354987331987CEp7qYeG",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773736602,
+  "data": [
+    {
+      "revised_prompt": "Create step-by-step recipe infographic for creamy garlic mushroom pasta, top-down view, minimal style on white background, ingredient photos labeled: \"200g spaghetti\", \"150g mushrooms\", \"3 garlic cloves\", \"200ml cream\", \"1 tbsp olive oil\", \"parmesan\", \"parsley\", dotted lines showing process steps with icons (boiling pot, sauté pan, mixing), final plated pasta shot at the bottom",
+      "url": "https://pro.filesystem.site/cdn/20260317/a9551674bd3c2053c5a45ebb48a968.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6337,
+    "input_tokens": 87,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 87
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T08:39:09.203Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "改为岐山臊子面 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-17/image-1773736602927-838483365.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 101072ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:39:10 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317163730354410611zyz1zVk",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317083732739710998llTdC8HT",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DdY8E0i7BdnGzFUAyucZ5zPhIl1",
+  "object": "chat.completion",
+  "created": 1773736749,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"改为岐山臊子面 尺寸[1792x1024 ]\",\n  \"ratio\": \"16:9\",\n  \"n\": 1\n}\n```\n\n> ID: `9e8b0aa1-4603-4b76-b681-d60bb3d28bed`\n>[数据预览](https://pro.asyncdata.net/web/9e8b0aa1-4603-4b76-b681-d60bb3d28bed) | [原始数据](https://pro.asyncdata.net/source/9e8b0aa1-4603-4b76-b681-d60bb3d28bed)\n\n>🕐 排队中.\n\n>⚡ 生成中.........\n\n>🏃‍ 进度 1.....15.....28.....40......51.....62.....[100](https://videos.openai.com/az/vg-assets/task_01kkxf33xaf9s86kk3rkayq50e%2F1773736743_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-17T03%3A20%3A40Z&ske=2026-03-24T03%3A25%3A40Z&sks=b&skv=2026-02-06&sig=Vaf4ds2vQTuE9%2BP2TflcVrx/QnWkd5EVqCGQ8X%2BaF1c%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxf35vhf0nb6a5tqbs61yg9](https://pro.filesystem.site/cdn/20260317/d5d07d5e5d0cef0f34b430f9f65998.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/d5d07d5e5d0cef0f34b430f9f65998.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 112,
+    "completion_tokens": 533,
+    "total_tokens": 645,
+    "prompt_tokens_details": {
+      "text_tokens": 105
+    },
+    "completion_tokens_details": {
+      "content_tokens": 533
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T08:47:08.760Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "图片的文字都改为中文简体，岐山臊子面 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-17/image-1773736749404-6717451.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 100498ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:47:10 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317164531240201324FYhsK6GM",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317084534785837906pWUzd23n",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DjYTAgPIc3tsqthfFuAJV27zeky",
+  "object": "chat.completion",
+  "created": 1773737229,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"图片的文字都改为中文简体，岐山臊子面 尺寸[1792x1024 ]\",\n  \"ratio\": \"16:9\",\n  \"n\": 1\n}\n```\n\n> ID: `967c03fd-9f10-41db-9234-5c7c7f4b7b11`\n>[数据预览](https://pro.asyncdata.net/web/967c03fd-9f10-41db-9234-5c7c7f4b7b11) | [原始数据](https://pro.asyncdata.net/source/967c03fd-9f10-41db-9234-5c7c7f4b7b11)\n\n>🕐 排队中..\n\n>⚡ 生成中..........\n\n>🏃‍ 进度 1....18.......43.....57......75..[100](https://videos.openai.com/az/vg-assets/task_01kkxfhv69e59act4jn049jwka%2F1773737220_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=cfbc986b-d2bc-4088-8b71-4f962129715b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T12%3A15%3A02Z&ske=2026-03-23T12%3A20%3A02Z&sks=b&skv=2026-02-06&sig=pMTsiFAtMHVeYpGHkp%2B1SEg2jgB5qN0%2BEUaoAgbCsQQ%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxfhwe1fygr7y6w30174ktj](https://pro.filesystem.site/cdn/20260317/b099da00a154ad61a8fd627f8850fd.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/b099da00a154ad61a8fd627f8850fd.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 121,
+    "completion_tokens": 530,
+    "total_tokens": 651,
+    "prompt_tokens_details": {
+      "text_tokens": 114
+    },
+    "completion_tokens_details": {
+      "content_tokens": 530
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T08:53:56.560Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "图片的文字都改为中文简体，岐山臊子面 尺寸[1792x1024 ]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-17/image-1773736749404-6717451.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 156761ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:53:58 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317165123348885204uhaKxIrj",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317085125702081042KlTj8Xvd",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DmOCRHOk8S5F3WULXrF2b0qNF2J",
+  "object": "chat.completion",
+  "created": 1773737638,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"图片的文字都改为中文简体，岐山臊子面 尺寸[1792x1024 ]\",\n  \"ratio\": \"16:9\",\n  \"n\": 1\n}\n```\n\n> ID: `4f327b9f-2429-4ea7-b2b3-690efabe994f`\n>[数据预览](https://pro.asyncdata.net/web/4f327b9f-2429-4ea7-b2b3-690efabe994f) | [原始数据](https://pro.asyncdata.net/source/4f327b9f-2429-4ea7-b2b3-690efabe994f)\n\n>🕐 排队中..\n\n>⚡ 生成中.........\n\n>🏃‍ 进度 1.....13....29......43......57....[100](https://videos.openai.com/az/vg-assets/task_01kkxfy8m2f6d9hb3wcryhshvm%2F1773737630_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T09%3A19%3A48Z&ske=2026-03-23T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=2pjROaGd15BMYDBXVQd/nxFNYLymlFhdtjxefwzk8O4%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxfyag0fpjryrbh4p98nbwa](https://pro.filesystem.site/cdn/20260317/83045ada8e592e6634f87a21ecf65e.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/83045ada8e592e6634f87a21ecf65e.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 121,
+    "completion_tokens": 528,
+    "total_tokens": 649,
+    "prompt_tokens_details": {
+      "text_tokens": 114
+    },
+    "completion_tokens_details": {
+      "content_tokens": 528
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T08:58:18.626Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "转成吉卜力风格 尺寸[1024x1792]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632385184-945615293.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 115643ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 08:58:20 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "202603171656265787864596Lxmpyrw",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317085628887904709NoOF1iCs",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DwygbHb62kcHOf7zUNdkm4m6AAU",
+  "object": "chat.completion",
+  "created": 1773737900,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"转成吉卜力风格 尺寸[1024x1792]\",\n  \"ratio\": \"2:3\",\n  \"n\": 1\n}\n```\n\n> ID: `d260b76b-2a24-41c8-849d-a3eb13744679`\n>[数据预览](https://pro.asyncdata.net/web/d260b76b-2a24-41c8-849d-a3eb13744679) | [原始数据](https://pro.asyncdata.net/source/d260b76b-2a24-41c8-849d-a3eb13744679)\n\n>🕐 排队中.\n\n>⚡ 生成中........\n\n>🏃‍ 进度 22......63...[100](https://videos.openai.com/az/vg-assets/task_01kkxg68krfddsevg9t6dcmq1v%2F1773737851_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=cfbc986b-d2bc-4088-8b71-4f962129715b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T12%3A15%3A02Z&ske=2026-03-23T12%3A20%3A02Z&sks=b&skv=2026-02-06&sig=N8Co7Zdt/ipTDVnYl5B/CZVOAre9rlIpVpe7Jvntp8A%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxg6a49epg80tabppy5cn3b](https://pro.filesystem.site/cdn/20260317/6e09df421f6cbd3867b05ed5d781d0.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/6e09df421f6cbd3867b05ed5d781d0.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 113,
+    "completion_tokens": 506,
+    "total_tokens": 619,
+    "prompt_tokens_details": {
+      "text_tokens": 106
+    },
+    "completion_tokens_details": {
+      "content_tokens": 506
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:12:14.509Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "转成吉卜力风 尺寸[1024x1792]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-16/image-1773632621264-214845740.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 116102ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:12:16 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317171022931765611yHii3Z84",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "202603170910249904130877l4s68sr",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DRTkdTQoxyqCxGRXXBXzzcVR6Fs",
+  "object": "chat.completion",
+  "created": 1773738736,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"转成吉卜力风 尺寸[1024x1792]\",\n  \"ratio\": \"2:3\",\n  \"n\": 1\n}\n```\n\n> ID: `7792469a-58c2-4108-a6ea-b29118258e5d`\n>[数据预览](https://pro.asyncdata.net/web/7792469a-58c2-4108-a6ea-b29118258e5d) | [原始数据](https://pro.asyncdata.net/source/7792469a-58c2-4108-a6ea-b29118258e5d)\n\n>🕐 排队中.\n\n>⚡ 生成中.......\n\n>🏃‍ 进度 14.....50.....[100](https://videos.openai.com/az/vg-assets/task_01kkxh14s1etb9ygj54e427vb9%2F1773738729_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-16T09%3A19%3A48Z&ske=2026-03-23T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=0WOgjL9zBLdT/SEnPexL92m80xWc3n08%2Bw4x6EuiFo8%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxh176qegdrnw23e4pvg3ft](https://pro.filesystem.site/cdn/20260317/f234d4014a72f90c24650f856c777d.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/f234d4014a72f90c24650f856c777d.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 112,
+    "completion_tokens": 508,
+    "total_tokens": 620,
+    "prompt_tokens_details": {
+      "text_tokens": 105
+    },
+    "completion_tokens_details": {
+      "content_tokens": 508
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:19:58.999Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "A peaceful hand-painted animated scene of a young girl walking through a sunlit countryside path, surrounded by tall\n  grass, wildflowers, and swaying trees, warm natural light, watercolor-style background, soft cel shading, cinematic\n  composition, nostalgic, whimsical, highly detailed environment, gentle and healing atmosphere, no photorealism, no 3D",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 28840ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:19:59 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "604",
+  "connection": "keep-alive",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317171932591574586xAgBDbPh",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317091933132136473IseTZIIZ",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773739199,
+  "data": [
+    {
+      "revised_prompt": "A peaceful hand-painted animated scene of a young girl walking through a sunlit countryside path, surrounded by tall\n  grass, wildflowers, and swaying trees, warm natural light, watercolor-style background, soft cel shading, cinematic\n  composition, nostalgic, whimsical, highly detailed environment, gentle and healing atmosphere, no photorealism, no 3D",
+      "url": "https://pro.filesystem.site/cdn/20260317/034523ca36d91283f2507a9d03bd33.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6325,
+    "input_tokens": 75,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 75
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:20:45.195Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "A cozy fantasy tea house hidden in a lush forest, glowing lanterns, mossy stones, wooden textures, tiny original\n  spirit creatures helping in the garden, hand-painted animation look, soft warm lighting, painterly background, rich\n  environmental storytelling, calm magical atmosphere, no 3D render, no text",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 30858ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:20:46 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "557",
+  "connection": "keep-alive",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317172016505268133Sq9mINJL",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317092016735115819qU5Pf0so",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773739245,
+  "data": [
+    {
+      "revised_prompt": "A cozy fantasy tea house hidden in a lush forest, glowing lanterns, mossy stones, wooden textures, tiny original\n  spirit creatures helping in the garden, hand-painted animation look, soft warm lighting, painterly background, rich\n  environmental storytelling, calm magical atmosphere, no 3D render, no text",
+      "url": "https://pro.filesystem.site/cdn/20260317/463951a410f0ca6be44766c6d69324.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6315,
+    "input_tokens": 65,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 65
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:21:31.714Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": " 一个小男孩撑着大叶子在雨中穿过森林，脚边有蜗牛、蘑菇和小溪，画面温柔、富有童话感，手绘动画插画，柔和色彩，湿润空气",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 36138ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:21:33 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "420",
+  "connection": "keep-alive",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "202603171720575037285871JTpw7eC",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317092057854200693sxM75Jdx",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773739292,
+  "data": [
+    {
+      "revised_prompt": " 一个小男孩撑着大叶子在雨中穿过森林，脚边有蜗牛、蘑菇和小溪，画面温柔、富有童话感，手绘动画插画，柔和色彩，湿润空气",
+      "url": "https://pro.filesystem.site/cdn/20260317/c78fb101a1262e19f61a23f71d219c.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6336,
+    "input_tokens": 86,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 86
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:22:30.976Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "A seaside hill town at golden hour, narrow streets, red rooftops, laundry moving in the wind, a boy carrying bread\n  home, hand-drawn animated film aesthetic, warm palette, soft shadows, detailed background, cinematic wide shot,\n  nostalgic and serene",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 30249ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:22:32 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "501",
+  "connection": "keep-alive",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "vary": "Origin",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317172202654773224RGVcZGKp",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317092203146287136KRsXK8vc",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773739351,
+  "data": [
+    {
+      "revised_prompt": "A seaside hill town at golden hour, narrow streets, red rooftops, laundry moving in the wind, a boy carrying bread\n  home, hand-drawn animated film aesthetic, warm palette, soft shadows, detailed background, cinematic wide shot,\n  nostalgic and serene",
+      "url": "https://pro.filesystem.site/cdn/20260317/e623e4939522e954b23e1ff6b0f45e.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6303,
+    "input_tokens": 53,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 53
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:28:04.351Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "Using the exact facial features from the attached image \nCreate an hyperrealistic and high quality close-up portrait of a styling young woman,  her dark thick long hair styled in twin high artistic braids that falls over her ears, few loose trendils clipped using a different style matte brown statement hair clips ,with few loose strands falls across and frames her face, wearing a drawstring halter top, a thick-frame  brown cat-eye eyeglasses slightly lowered, soft hazel nut eyes, glossy red pouty lips, peached dewy blush and soft warm tone eyeshadows with a little bit shimmers and glitters on her cheeks and under her eyes, artistic brown eyeliner, natural dewy skin, head slightly tilted, relaxed and confident gaze hand-on-cheek pose, minimalistic background, warm beige and brown tones, bright and harsh illumination coming from the camera highlighting the texture of her figure, soft studio background lighting, K-fashion editorial aesthetic, Seoul street style influence, hyper-detailed face texture, cinematic tone, 85mm lens photography, Vogue Korea vibe, stylish and modern mood --ar 2:3 --v 6 --style raw --q 2 --s 250",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 34504ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:28:06 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317172733217753908Li4GF6S",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317092733515737683utKxiVeX",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773739685,
+  "data": [
+    {
+      "revised_prompt": "Using the exact facial features from the attached image \nCreate an hyperrealistic and high quality close-up portrait of a styling young woman,  her dark thick long hair styled in twin high artistic braids that falls over her ears, few loose trendils clipped using a different style matte brown statement hair clips ,with few loose strands falls across and frames her face, wearing a drawstring halter top, a thick-frame  brown cat-eye eyeglasses slightly lowered, soft hazel nut eyes, glossy red pouty lips, peached dewy blush and soft warm tone eyeshadows with a little bit shimmers and glitters on her cheeks and under her eyes, artistic brown eyeliner, natural dewy skin, head slightly tilted, relaxed and confident gaze hand-on-cheek pose, minimalistic background, warm beige and brown tones, bright and harsh illumination coming from the camera highlighting the texture of her figure, soft studio background lighting, K-fashion editorial aesthetic, Seoul street style influence, hyper-detailed face texture, cinematic tone, 85mm lens photography, Vogue Korea vibe, stylish and modern mood --ar 2:3 --v 6 --style raw --q 2 --s 250",
+      "url": "https://pro.filesystem.site/cdn/20260317/a3f07fb1b7228cbd63300eea3b48fe.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6493,
+    "input_tokens": 243,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 243
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:31:18.096Z]
+API名称: 图生图 - /chat/completions
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/chat/completions
+请求头: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "model": "gpt-image-1.5-all",
+  "stream": false,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "转换成吉卜力风格 尺寸[1024x1792]"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-17/image-1773739684966-338961429.png"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+【响应信息】
+请求耗时: 106089ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:31:19 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "20260317172935933307425FcbvH5KP",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "20260317092939416351840NMEAr2yF",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "id": "chatcmpl-89DtX0nigsbym5BIlmOHQ5etzfAB5",
+  "object": "chat.completion",
+  "created": 1773739878,
+  "model": "gpt-image-1.5-all",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"prompt\": \"转换成吉卜力风格 尺寸[1024x1792]\",\n  \"ratio\": \"2:3\",\n  \"n\": 1\n}\n```\n\n> ID: `f5ae8ccb-5abc-4cb6-afa1-fea8bf1523c3`\n>[数据预览](https://pro.asyncdata.net/web/f5ae8ccb-5abc-4cb6-afa1-fea8bf1523c3) | [原始数据](https://pro.asyncdata.net/source/f5ae8ccb-5abc-4cb6-afa1-fea8bf1523c3)\n\n>🕐 排队中.\n\n>⚡ 生成中........\n\n>🏃‍ 进度 13......57.....[100](https://videos.openai.com/az/vg-assets/task_01kkxj3tzcepvvjzjckrmynx8a%2F1773739871_img_0.webp?se=2026-03-20T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-03-17T09%3A19%3A48Z&ske=2026-03-24T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=4NcCMhfyz/JmK4D3i1B0DaKER/4m6WThiqIiIJWfAA4%3D&ac=oaivgprodscus2)\n\n> ✅ 生成完成\n\n\n![gen_01kkxj3wpve19v5z7sxeecesmk](https://pro.filesystem.site/cdn/20260317/cbe3f630976542f2fee99ec3439fae.png)\n\n[点击下载](https://pro.filesystem.site/cdn/download/20260317/cbe3f630976542f2fee99ec3439fae.png)"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 114,
+    "completion_tokens": 511,
+    "total_tokens": 625,
+    "prompt_tokens_details": {
+      "text_tokens": 107
+    },
+    "completion_tokens_details": {
+      "content_tokens": 511
+    }
+  }
+}
+================================================================================
+
+================================================================================
+[2026-03-17T09:35:09.895Z]
+API名称: 文生图 - /images/generations
+状态: 成功
+
+【请求信息】
+URL: https://makerend.com/v1/images/generations
+请求头: {
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Authorization": "Bearer sk-EsVti...EeKv"
+}
+请求体: {
+  "prompt": "Create a colorful Y2K scrapbook–style poster collage with a vibrant, chaotic-yet-balanced aesthetic. The image should feel like an early-2000s magazine scrapbook filled with stickers, cutouts, doodles, and playful graphic elements. The overall style is frameless, highly artistic, visually dense, and extremely engaging.\n\nThe same young Y2K-styled woman appears multiple times throughout the collage, wearing the same outfit and hairstyle in every appearance, but shown in different poses and cutout-style compositions. Her identity must remain perfectly consistent across all instances, with full face-lock accuracy and no facial distortion or changes.\n\nThe collage includes the following scenes and poses:\n\nA close-up shot where she forms a heart shape with her fingers\n\nA full-body squatting pose, resting her chin on her hand while holding a white Polaroid camera\n\nA mid-shot touching her cheek while blowing pink bubblegum\n\nA mid-shot smiling elegantly while holding a cat\n\nA seated pose with one eye winking and a peace sign gesture\n\nA mid-shot holding a bouquet of daisy flowers\n\nAt the center of the composition is the main subject in a confident, playful Y2K pose. She slightly pops one hip to the side, faces the camera directly with a cute-cool expression and a subtle pout, and holds a lens-flare keychain in one hand. The vibe is candid, nostalgic, and unmistakably early 2000s.\n\nHer outfit consists of a cropped oversized pastel sweater decorated with embroidered patches, paired with a pastel skirt and a white belt. She wears white ankle socks with colorful pastel stripes and white sneakers. Accessories include colorful plastic bracelets, chunky bright rings, and a sparkling belly chain.\n\nHer hairstyle is a classic Y2K half-up, half-down look with wavy dark brown hair. The lower strands are tinted bubblegum pink, with thin front tendrils framing the face and pastel flower clips adding a playful touch.\n\nThe collage is packed with additional visual elements such as heart, star, and butterfly stickers, retro sparkles, Polaroid frames, neon outlines, doodle borders, and magazine-style cutout text reading “SO CUTE!”, “199X!”, and “GIRL VIBES”. The lighting is pastel and dreamy, with a glossy retro glow and holographic textures, pastel gradients, glitter accents, and playful doodles layered throughout.\n\nColor grading is bold and cinematic with a neon Y2K palette. Lighting resembles soft on-camera flash. Skin texture appears smooth and glossy, consistent with high-end Y2K editorial imagery. The rendering is high-detail, hyperrealistic within the Y2K aesthetic, in ultra-high resolution, with a perfectly balanced and artistic composition.\n\nAvoid anything that breaks the Y2K style. Do not include modern 2020s fashion, messy layouts, blurred faces, distorted hands, extra limbs, warped facial features, low resolution, heavy grain, muted colors, watermarks, or visible AI artifacts. The final image should feel polished, nostalgic, and authentically Y2K rather than modern or realistic in a contemporary sense.",
+  "model": "gpt-image-1.5-all",
+  "n": 1,
+  "size": "1024x1792",
+  "quality": "medium",
+  "style": "vivid",
+  "response_format": "url"
+}
+
+【响应信息】
+请求耗时: 83653ms
+响应状态: 200
+响应头: {
+  "server": "nginx",
+  "date": "Tue, 17 Mar 2026 09:35:10 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "transfer-encoding": "chunked",
+  "connection": "keep-alive",
+  "vary": "Accept-Encoding, Origin",
+  "access-control-allow-origin": "*",
+  "alt-svc": "h3=\":443\"; ma=2592000",
+  "content-security-policy": "frame-ancestors 'self'",
+  "via": "1.1 Caddy",
+  "x-api-request-id": "202603171733492071888177IPxao5f",
+  "x-frame-options": "SAMEORIGIN",
+  "x-new-api-version": "0.4.25-alpha.2",
+  "x-oneapi-request-id": "202603170933497294675374cDPqJUv",
+  "strict-transport-security": "max-age=31536000"
+}
+响应数据: {
+  "created": 1773740109,
+  "data": [
+    {
+      "revised_prompt": "Create a colorful Y2K scrapbook–style poster collage with a vibrant, chaotic-yet-balanced aesthetic. The image should feel like an early-2000s magazine scrapbook filled with stickers, cutouts, doodles, and playful graphic elements. The overall style is frameless, highly artistic, visually dense, and extremely engaging.\n\nThe same young Y2K-styled woman appears multiple times throughout the collage, wearing the same outfit and hairstyle in every appearance, but shown in different poses and cutout-style compositions. Her identity must remain perfectly consistent across all instances, with full face-lock accuracy and no facial distortion or changes.\n\nThe collage includes the following scenes and poses:\n\nA close-up shot where she forms a heart shape with her fingers\n\nA full-body squatting pose, resting her chin on her hand while holding a white Polaroid camera\n\nA mid-shot touching her cheek while blowing pink bubblegum\n\nA mid-shot smiling elegantly while holding a cat\n\nA seated pose with one eye winking and a peace sign gesture\n\nA mid-shot holding a bouquet of daisy flowers\n\nAt the center of the composition is the main subject in a confident, playful Y2K pose. She slightly pops one hip to the side, faces the camera directly with a cute-cool expression and a subtle pout, and holds a lens-flare keychain in one hand. The vibe is candid, nostalgic, and unmistakably early 2000s.\n\nHer outfit consists of a cropped oversized pastel sweater decorated with embroidered patches, paired with a pastel skirt and a white belt. She wears white ankle socks with colorful pastel stripes and white sneakers. Accessories include colorful plastic bracelets, chunky bright rings, and a sparkling belly chain.\n\nHer hairstyle is a classic Y2K half-up, half-down look with wavy dark brown hair. The lower strands are tinted bubblegum pink, with thin front tendrils framing the face and pastel flower clips adding a playful touch.\n\nThe collage is packed with additional visual elements such as heart, star, and butterfly stickers, retro sparkles, Polaroid frames, neon outlines, doodle borders, and magazine-style cutout text reading “SO CUTE!”, “199X!”, and “GIRL VIBES”. The lighting is pastel and dreamy, with a glossy retro glow and holographic textures, pastel gradients, glitter accents, and playful doodles layered throughout.\n\nColor grading is bold and cinematic with a neon Y2K palette. Lighting resembles soft on-camera flash. Skin texture appears smooth and glossy, consistent with high-end Y2K editorial imagery. The rendering is high-detail, hyperrealistic within the Y2K aesthetic, in ultra-high resolution, with a perfectly balanced and artistic composition.\n\nAvoid anything that breaks the Y2K style. Do not include modern 2020s fashion, messy layouts, blurred faces, distorted hands, extra limbs, warped facial features, low resolution, heavy grain, muted colors, watermarks, or visible AI artifacts. The final image should feel polished, nostalgic, and authentically Y2K rather than modern or realistic in a contemporary sense.",
+      "url": "https://pro.filesystem.site/cdn/20260317/776d506f2a23e7e4388850347ab87c.png"
+    }
+  ],
+  "usage": {
+    "total_tokens": 6890,
+    "input_tokens": 640,
+    "output_tokens": 6250,
+    "input_tokens_details": {
+      "text_tokens": 640
+    }
+  }
+}
+================================================================================

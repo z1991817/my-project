@@ -11,9 +11,9 @@
 
 ## 接口信息
 
-**端点**：`${TEST_BASE_URL}/chat/completions`
+**端点**：`${CREATE_BASE_URL}/chat/completions`
 **方法**：POST
-**认证**：Bearer Token（TEST_API_KEY）
+**认证**：Bearer Token（GPT_IMAGE_KEY）
 
 ---
 
@@ -22,7 +22,7 @@
 ### 请求头
 ```
 Content-Type: application/json
-Authorization: Bearer ${TEST_API_KEY}
+Authorization: Bearer ${GPT_IMAGE_KEY}
 ```
 
 ### 请求体
@@ -72,7 +72,7 @@ Authorization: Bearer ${TEST_API_KEY}
 - 打印完整的请求和响应
 
 **实现步骤**：
-1. 读取环境变量（TEST_BASE_URL、TEST_API_KEY）
+1. 读取环境变量（CREATE_BASE_URL、GPT_IMAGE_KEY）
 2. 构建请求参数
 3. 使用axios发送POST请求
 4. 打印响应数据
