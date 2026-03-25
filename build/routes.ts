@@ -171,9 +171,12 @@ const models: TsoaRoute.Models = {
     "BananaGenerateImageBody": {
         "dataType": "refObject",
         "properties": {
+            "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["text-to-image"]},{"dataType":"enum","enums":["image-to-image"]}]},
             "model": {"dataType":"string","required":true},
             "prompt": {"dataType":"string","required":true},
             "aspectRatio": {"dataType":"string"},
+            "imageUrls": {"dataType":"array","array":{"dataType":"string"}},
+            "imageUrl": {"dataType":"string"},
         },
         "additionalProperties": true,
     },

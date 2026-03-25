@@ -377,6 +377,14 @@
 			"BananaGenerateImageBody": {
 				"description": "Banana 文生图请求体",
 				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"text-to-image",
+							"image-to-image"
+						],
+						"description": "生成类型: 'text-to-image' | 'image-to-image'"
+					},
 					"model": {
 						"type": "string",
 						"description": "模型名称"
@@ -388,6 +396,17 @@
 					"aspectRatio": {
 						"type": "string",
 						"description": "尺寸比例（可选，默认 \"16:9\"）"
+					},
+					"imageUrls": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "图片 URL 数组（图生图模式必传，支持多张）"
+					},
+					"imageUrl": {
+						"type": "string",
+						"description": "图片 URL（兼容旧接口，单张图片）"
 					}
 				},
 				"required": [

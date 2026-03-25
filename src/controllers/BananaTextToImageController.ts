@@ -16,12 +16,18 @@ import ImageGenerationRecord from '../models/imageGenerationRecord';
 
 /** Banana 文生图请求体 */
 interface BananaGenerateImageBody {
+  /** 生成类型: 'text-to-image' | 'image-to-image' */
+  type?: 'text-to-image' | 'image-to-image';
   /** 模型名称 */
   model: string;
   /** 提示词 */
   prompt: string;
   /** 尺寸比例（可选，默认 "16:9"） */
   aspectRatio?: string;
+  /** 图片 URL 数组（图生图模式必传，支持多张） */
+  imageUrls?: string[];
+  /** 图片 URL（兼容旧接口，单张图片） */
+  imageUrl?: string;
 }
 
 /**
@@ -76,24 +82,49 @@ export class BananaTextToImageController extends Controller {
     @Request() req: ExpressRequest
   ): Promise<any> {
     const userId = (req as any).user?.id;
+    const { type = 'text-to-image', model, prompt, aspectRatio, imageUrl, imageUrls } = body;
 
-    if (!body.model) {
+    if (!model) {
       this.setStatus(400);
       return { success: false, code: 400, message: '缺少必需参数: model' };
     }
-    if (!body.prompt) {
+    if (!prompt) {
       this.setStatus(400);
       return { success: false, code: 400, message: '缺少必需参数: prompt' };
     }
 
-    console.log(`[BananaTextToImage] 用户 ${userId} 请求文生图, 模型: ${body.model}, 尺寸: ${body.aspectRatio || '16:9'}`);
+    // 图生图模式：兼容 imageUrls（数组）和 imageUrl（单个），统一转为数组
+    let resolvedImageUrls: string[] = [];
+    if (type === 'image-to-image') {
+      if (imageUrls && Array.isArray(imageUrls) && imageUrls.length > 0) {
+        resolvedImageUrls = imageUrls;
+      } else if (imageUrl) {
+        resolvedImageUrls = [imageUrl];
+      } else {
+        this.setStatus(400);
+        return { success: false, code: 400, message: '图生图模式缺少必需参数: imageUrls 或 imageUrl' };
+      }
+    }
 
-    // 调用 Banana 文生图服务
-    const result = await bananaImageService.generateImage({
-      model: body.model,
-      prompt: body.prompt,
-      aspectRatio: body.aspectRatio,
-    });
+    const generationType = type === 'image-to-image' ? '图生图' : '文生图';
+    console.log(`[BananaTextToImage] 用户 ${userId} 请求${generationType}, 模型: ${model}, 尺寸: ${aspectRatio || '16:9'}${type === 'image-to-image' ? `, 图片数量: ${resolvedImageUrls.length}` : ''}`);
+
+    // 根据 type 调用不同的服务方法
+    let result;
+    if (type === 'image-to-image') {
+      result = await bananaImageService.generateImageFromImage({
+        model,
+        prompt,
+        imageUrls: resolvedImageUrls,
+        aspectRatio,
+      });
+    } else {
+      result = await bananaImageService.generateImage({
+        model,
+        prompt,
+        aspectRatio,
+      });
+    }
 
     // 从响应中提取 base64 图片
     const imageData = extractBase64FromResponse(result.data);
@@ -112,7 +143,7 @@ export class BananaTextToImageController extends Controller {
       recordId = await ImageGenerationRecord.create({
         session_id: sessionId,
         user_id: userId,
-        generation_type: 'text-to-image',
+        generation_type: type,
         prompt: body.prompt,
         model: body.model,
         size: body.aspectRatio || '16:9',
