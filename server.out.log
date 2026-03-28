@@ -1,0 +1,5 @@
+[dotenv@17.3.1] injecting env (23) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[Swagger] 文档已挂载: http://localhost:3000/docs
+Server running at http://localhost:3000
+[Redis] 连接成功
+✅ 成功连接到 MySQL 数据库!

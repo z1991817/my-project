@@ -1,0 +1,54 @@
+const path = require('path');
+const dotenv = require('dotenv');
+const mysql = require('mysql2/promise');
+
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+async function createPaymentOrdersTable() {
+  let connection;
+
+  try {
+    console.log('开始创建 payment_orders 表...\n');
+
+    connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT || 3306),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      charset: 'utf8mb4',
+    });
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`payment_orders\` (
+        \`id\`                   INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '订单ID',
+        \`order_no\`             VARCHAR(64) NOT NULL COMMENT '业务订单号',
+        \`user_id\`              INT UNSIGNED NOT NULL COMMENT '用户ID',
+        \`order_type\`           VARCHAR(32) NOT NULL DEFAULT 'recharge' COMMENT '订单类型',
+        \`package_id\`           VARCHAR(64) NOT NULL COMMENT '套餐ID',
+        \`package_name\`         VARCHAR(100) NOT NULL COMMENT '套餐名称',
+        \`amount\`               DECIMAL(10,2) NOT NULL COMMENT '订单金额（元）',
+        \`points\`               INT NOT NULL COMMENT '到账积分',
+        \`status\`               VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT '订单状态',
+        \`payment_channel\`      VARCHAR(20) DEFAULT NULL COMMENT '支付渠道',
+        \`third_party_order_no\` VARCHAR(100) DEFAULT NULL COMMENT '第三方支付流水号',
+        \`paid_at\`              DATETIME DEFAULT NULL COMMENT '支付成功时间',
+        \`created_at\`           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+        \`updated_at\`           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+        PRIMARY KEY (\`id\`),
+        UNIQUE KEY \`uk_order_no\` (\`order_no\`),
+        KEY \`idx_user_id\` (\`user_id\`),
+        KEY \`idx_status\` (\`status\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值订单表';
+    `);
+
+    console.log('payment_orders 表创建成功');
+  } catch (error) {
+    console.error('创建失败:', error.message);
+    process.exitCode = 1;
+  } finally {
+    if (connection) await connection.end();
+  }
+}
+
+createPaymentOrdersTable();

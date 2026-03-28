@@ -1,39 +1,25 @@
-/**
- * =====================================================
- * BananaTextToImageController - Banana 文生图控制器
- * =====================================================
- * 路由前缀：/app
- * 功能：调用 Banana API 生成图片并同步上传到 COS
- * =====================================================
- */
-
-import { Controller, Post, Body, Route, Security, Request, Tags } from 'tsoa';
+import { Body, Controller, Post, Request, Route, Security, Tags } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import * as bananaImageService from '../services/bananaImage';
 import { uploadBase64ToCOS } from '../services/openai';
 import ImageGenerationRecord from '../models/imageGenerationRecord';
+import {
+  buildPointsErrorResponse,
+  confirmReservedPoints,
+  releaseReservedPoints,
+  reservePointsForImageGeneration,
+} from '../services/points';
 
-/** Banana 文生图请求体 */
 interface BananaGenerateImageBody {
-  /** 生成类型: 'text-to-image' | 'image-to-image' */
   type?: 'text-to-image' | 'image-to-image';
-  /** 模型名称 */
   model: string;
-  /** 提示词 */
   prompt: string;
-  /** 尺寸比例（可选，默认 "16:9"） */
   aspectRatio?: string;
-  /** 图片 URL 数组（图生图模式必传，支持多张） */
   imageUrls?: string[];
-  /** 图片 URL（兼容旧接口，单张图片） */
   imageUrl?: string;
 }
 
-/**
- * 从 Banana API 响应中提取 base64 图片数据
- * 响应结构: candidates[0].content.parts[].inlineData.{ mimeType, data }
- */
 function extractBase64FromResponse(data: any): { base64: string; mimeType: string } | null {
   const parts = data?.candidates?.[0]?.content?.parts || [];
   for (const part of parts) {
@@ -47,21 +33,16 @@ function extractBase64FromResponse(data: any): { base64: string; mimeType: strin
   return null;
 }
 
-/**
- * 过滤第三方响应中不需要返回给前端的字段
- * - inlineData.data: base64 图片数据，体积大不返回
- * - thoughtSignature: 内部签名字段
- */
 function filterThirdPartyResponse(data: any): any {
   if (!data || typeof data !== 'object') return data;
 
-  const result = JSON.parse(JSON.stringify(data)); // 深拷贝，避免修改原对象
+  const result = JSON.parse(JSON.stringify(data));
   const parts = result?.candidates?.[0]?.content?.parts;
 
   if (Array.isArray(parts)) {
     result.candidates[0].content.parts = parts
-      .filter((part: any) => !part.inlineData) // 去掉 base64 图片 part
-      .map(({ thoughtSignature, ...rest }: any) => rest); // 去掉 thoughtSignature
+      .filter((part: any) => !part.inlineData)
+      .map(({ thoughtSignature, ...rest }: any) => rest);
   }
 
   return result;
@@ -70,11 +51,6 @@ function filterThirdPartyResponse(data: any): any {
 @Tags('Banana 文生图')
 @Route('app')
 export class BananaTextToImageController extends Controller {
-  /**
-   * Banana 文生图 - 生成图片并上传到 COS
-   * POST /app/banana-CreateImage
-   * 需要认证
-   */
   @Post('/banana-CreateImage')
   @Security('jwt')
   async generateImage(
@@ -83,17 +59,18 @@ export class BananaTextToImageController extends Controller {
   ): Promise<any> {
     const userId = (req as any).user?.id;
     const { type = 'text-to-image', model, prompt, aspectRatio, imageUrl, imageUrls } = body;
+    let reservation: any = null;
 
     if (!model) {
       this.setStatus(400);
       return { success: false, code: 400, message: '缺少必需参数: model' };
     }
+
     if (!prompt) {
       this.setStatus(400);
       return { success: false, code: 400, message: '缺少必需参数: prompt' };
     }
 
-    // 图生图模式：兼容 imageUrls（数组）和 imageUrl（单个），统一转为数组
     let resolvedImageUrls: string[] = [];
     if (type === 'image-to-image') {
       if (imageUrls && Array.isArray(imageUrls) && imageUrls.length > 0) {
@@ -106,87 +83,82 @@ export class BananaTextToImageController extends Controller {
       }
     }
 
-    const generationType = type === 'image-to-image' ? '图生图' : '文生图';
-    console.log(`[BananaTextToImage] 用户 ${userId} 请求${generationType}, 模型: ${model}, 尺寸: ${aspectRatio || '16:9'}${type === 'image-to-image' ? `, 图片数量: ${resolvedImageUrls.length}` : ''}`);
-
-    // 根据 type 调用不同的服务方法
-    let result;
-    if (type === 'image-to-image') {
-      result = await bananaImageService.generateImageFromImage({
-        model,
-        prompt,
-        imageUrls: resolvedImageUrls,
-        aspectRatio,
-      });
-    } else {
-      result = await bananaImageService.generateImage({
-        model,
-        prompt,
-        aspectRatio,
-      });
-    }
-
-    // 从响应中提取 base64 图片
-    const imageData = extractBase64FromResponse(result.data);
-    if (!imageData) {
-      console.error('[BananaTextToImage] 第三方 API 未返回图片数据');
-      this.setStatus(500);
-      return { success: false, code: 500, message: '第三方 API 未返回图片数据' };
-    }
-
-    console.log(`[BananaTextToImage] 提取图片成功, mimeType: ${imageData.mimeType}, 开始上传 COS...`);
-
-    // 先写入生成记录（status: pending），获取 ID 用于后续更新
-    let recordId: number | null = null;
     const sessionId = uuidv4();
+
     try {
-      recordId = await ImageGenerationRecord.create({
-        session_id: sessionId,
-        user_id: userId,
-        generation_type: type,
-        prompt: body.prompt,
-        model: body.model,
-        size: body.aspectRatio || '16:9',
-        quality: 'medium',
-        style: 'vivid',
-        n: 1,
-        third_party_url: null,   // 第三方返回 base64，无 URL
-        cos_url: null,
-        upload_task_id: null,    // 同步上传无需异步任务
-        status: 'pending',
-      });
-      console.log(`[BananaTextToImage] 生成记录已创建, recordId: ${recordId}, sessionId: ${sessionId}`);
-    } catch (dbError: any) {
-      console.error('[BananaTextToImage] 创建生成记录失败:', dbError.message);
-    }
+      reservation = await reservePointsForImageGeneration({ userId, modelName: model, quantity: 1 });
 
-    // 拼接 Data URI，上传到 COS（含压缩和缩略图生成）
-    const dataUri = `data:${imageData.mimeType};base64,${imageData.base64}`;
-    const uploadResult = await uploadBase64ToCOS(dataUri);
+      const result = type === 'image-to-image'
+        ? await bananaImageService.generateImageFromImage({
+            model,
+            prompt,
+            imageUrls: resolvedImageUrls,
+            aspectRatio,
+          })
+        : await bananaImageService.generateImage({
+            model,
+            prompt,
+            aspectRatio,
+          });
 
-    console.log(`[BananaTextToImage] COS 上传成功, cosUrl: ${uploadResult.cosUrl}`);
-
-    // COS 上传成功后更新记录的 cos_url 和 status
-    if (recordId) {
-      try {
-        await ImageGenerationRecord.updateCosUrl(recordId, uploadResult.cosUrl, 'uploaded');
-        console.log(`[BananaTextToImage] 生成记录已更新, recordId: ${recordId}`);
-      } catch (dbError: any) {
-        console.error('[BananaTextToImage] 更新生成记录失败:', dbError.message);
+      const imageData = extractBase64FromResponse(result.data);
+      if (!imageData) {
+        throw new Error('第三方 API 未返回图片数据');
       }
+
+      let recordId: number | null = null;
+      try {
+        recordId = await ImageGenerationRecord.create({
+          session_id: sessionId,
+          user_id: userId,
+          generation_type: type,
+          prompt,
+          model,
+          size: aspectRatio || '16:9',
+          quality: 'medium',
+          style: 'vivid',
+          n: 1,
+          third_party_url: null,
+          cos_url: null,
+          upload_task_id: null,
+          status: 'pending',
+        });
+      } catch (dbError: any) {
+        console.error('[BananaTextToImage] create record failed:', dbError.message);
+      }
+
+      const dataUri = `data:${imageData.mimeType};base64,${imageData.base64}`;
+      const uploadResult = await uploadBase64ToCOS(dataUri);
+
+      if (recordId) {
+        try {
+          await ImageGenerationRecord.updateCosUrl(recordId, uploadResult.cosUrl, 'uploaded');
+        } catch (dbError: any) {
+          console.error('[BananaTextToImage] update record failed:', dbError.message);
+        }
+      }
+
+      confirmReservedPoints(reservation, { recordId, sessionId, model, quantity: 1 });
+      const filteredResponse = filterThirdPartyResponse(result.data);
+
+      return {
+        success: true,
+        message: '生成成功',
+        timestamp: new Date().toISOString(),
+        data: {
+          cosUrl: uploadResult.cosUrl,
+          thirdPartyResponse: filteredResponse,
+        },
+      };
+    } catch (error) {
+      await releaseReservedPoints(reservation, 'banana-generate-failed');
+      const pointsError = buildPointsErrorResponse(error);
+      if (pointsError) {
+        this.setStatus(pointsError.statusCode);
+        return pointsError.body;
+      }
+      this.setStatus(500);
+      return { success: false, code: 500, message: error instanceof Error ? error.message : 'Banana 生图失败' };
     }
-
-    // 过滤掉不需要返回前端的字段（base64 图片、thoughtSignature）
-    const filteredResponse = filterThirdPartyResponse(result.data);
-
-    return {
-      success: true,
-      message: '生成成功',
-      timestamp: new Date().toISOString(),
-      data: {
-        cosUrl: uploadResult.cosUrl,
-        thirdPartyResponse: filteredResponse,
-      },
-    };
   }
 }

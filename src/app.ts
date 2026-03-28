@@ -13,7 +13,19 @@
 // 加载环境变量（必须在最前面）
 import dotenv from 'dotenv';
 import path from 'path';
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+import fs from 'fs';
+
+const envCandidates = [
+  path.join(__dirname, '..', '.env'),
+  path.join(__dirname, '..', '..', '.env'),
+];
+
+const envPath = envCandidates.find((candidate) => fs.existsSync(candidate));
+if (envPath) {
+  dotenv.config({ path: envPath });
+} else {
+  dotenv.config();
+}
 
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
@@ -24,6 +36,16 @@ import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from '../build/routes';
 
 const app = express();
+const publicCandidates = [
+  path.join(__dirname, '..', 'public'),
+  path.join(__dirname, '..', '..', 'public'),
+];
+const publicDir = publicCandidates.find((candidate) => fs.existsSync(candidate)) || publicCandidates[0];
+const swaggerCandidates = [
+  path.join(publicDir, 'swagger', 'swagger.json'),
+  path.join(__dirname, '..', 'public', 'swagger', 'swagger.json'),
+];
+const swaggerPath = swaggerCandidates.find((candidate) => fs.existsSync(candidate));
 
 // ========== 中间件 ==========
 
@@ -46,12 +68,13 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // 静态资源
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(publicDir));
 
 // ========== Swagger UI ==========
 try {
+  if (!swaggerPath) throw new Error('swagger.json not found');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const swaggerDocument = require('../public/swagger/swagger.json');
+  const swaggerDocument = require(swaggerPath);
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
     swaggerOptions: {
       persistAuthorization: true, // 保持鉴权状态，方便调试

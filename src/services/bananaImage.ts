@@ -11,8 +11,13 @@ import { logApiCall } from '../utils/logger';
 import { externalHttpClient, buildExternalRequestConfig } from '../utils/httpClient';
 import { AxiosRequestConfig } from 'axios';
 
-/** Banana API 基础地址 */
-const BANANA_API_BASE_URL = 'https://makerend.com/v1beta/models';
+function getBananaApiBaseUrl(): string {
+  const baseUrl = process.env.CREATE_BASE_URL?.replace(/\/+$/, '');
+  if (!baseUrl) return '';
+  if (baseUrl.endsWith('/v1beta/models')) return baseUrl;
+  if (baseUrl.endsWith('/v1')) return `${baseUrl}beta/models`;
+  return `${baseUrl}/v1beta/models`;
+}
 
 /** 默认宽高比 */
 const DEFAULT_ASPECT_RATIO = '16:9';
@@ -33,7 +38,44 @@ function buildLongRequestConfig(headers: Record<string, string> = {}): AxiosRequ
 function validateCommonParams(model: string, prompt: string): void {
   if (!model) throw new Error('缺少必需参数: model');
   if (!prompt) throw new Error('缺少必需参数: prompt');
+  if (!getBananaApiBaseUrl()) throw new Error('缺少环境变量: CREATE_BASE_URL');
   if (!process.env.BANANA_API_KEY) throw new Error('缺少环境变量: BANANA_API_KEY');
+}
+
+function truncateBase64Preview(value: any): any {
+  if (typeof value !== 'string') return value;
+  return `${value.slice(0, 5)}...[truncated ${Math.max(0, value.length - 5)} chars]`;
+}
+
+function sanitizeBananaRequestPayload(payload: any): any {
+  if (Array.isArray(payload)) {
+    return payload.map((item) => sanitizeBananaRequestPayload(item));
+  }
+  if (!payload || typeof payload !== 'object') {
+    return payload;
+  }
+
+  const sanitized: Record<string, any> = {};
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === 'inline_data' && value && typeof value === 'object') {
+      sanitized[key] = {
+        ...(value as Record<string, any>),
+        data: truncateBase64Preview((value as Record<string, any>).data),
+      };
+      continue;
+    }
+
+    if (key === 'inlineData' && value && typeof value === 'object') {
+      sanitized[key] = {
+        ...(value as Record<string, any>),
+        data: truncateBase64Preview((value as Record<string, any>).data),
+      };
+      continue;
+    }
+
+    sanitized[key] = sanitizeBananaRequestPayload(value);
+  }
+  return sanitized;
 }
 
 /**
@@ -44,11 +86,13 @@ async function callBananaApi(
   model: string,
   requestData: Record<string, any>,
 ): Promise<{ success: boolean; data: any }> {
-  const url = `${BANANA_API_BASE_URL}/${model}:generateContent?key=${process.env.BANANA_API_KEY}`;
-  const maskedUrl = `${BANANA_API_BASE_URL}/${model}:generateContent?key=${maskedApiKey}`;
+  const bananaApiBaseUrl = getBananaApiBaseUrl();
+  const url = `${bananaApiBaseUrl}/${model}:generateContent?key=${process.env.BANANA_API_KEY}`;
+  const maskedUrl = `${bananaApiBaseUrl}/${model}:generateContent?key=${maskedApiKey}`;
   const requestHeaders = { 'Content-Type': 'application/json' };
 
   console.log(`=== [BananaImage] 开始调用 ${apiName} ===`);
+  console.log('[BananaImage] 第三方API请求入参:', JSON.stringify(sanitizeBananaRequestPayload(requestData), null, 2));
 
   const startTime = Date.now();
 
@@ -72,10 +116,7 @@ async function callBananaApi(
 
     console.error(`[BananaImage] ${apiName} 失败, 耗时: ${duration}ms, 错误: ${error.message}`);
 
-    // 记录失败日志（图生图时省略 base64 数据）
-    const logBody = requestData.contents?.[0]?.parts?.some((p: any) => p.inline_data)
-      ? { ...requestData, contents: '[含base64图片数据，已省略]' }
-      : requestData;
+    const logBody = sanitizeBananaRequestPayload(requestData);
 
     logApiCall({
       apiName, url: maskedUrl, requestHeaders, requestBody: logBody,
@@ -167,6 +208,5 @@ export async function generateImageFromImage(options: {
       imageConfig: { aspectRatio, imageSize: '1K' },
     },
   };
-
   return callBananaApi('Banana图生图', model, requestData);
 }

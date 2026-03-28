@@ -1,66 +1,38 @@
-/**
- * =====================================================
- * TextToImageController - 文生图/图生图控制器
- * =====================================================
- * 路由前缀：/app/text-to-image
- * 功能：文本生成图片、图生图、查询上传任务状态、查询历史记录
- * =====================================================
- */
-
-import { Controller, Post, Get, Body, Route, Security, Request, Tags, Path, Query } from 'tsoa';
+import { Body, Controller, Get, Path, Post, Query, Request, Route, Security, Tags } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import * as thirdPartyImageService from '../services/thirdPartyImage';
 import * as openaiService from '../services/openai';
 import ImageGenerationRecord from '../models/imageGenerationRecord';
+import {
+  buildPointsErrorResponse,
+  confirmReservedPoints,
+  releaseReservedPoints,
+  reservePointsForImageGeneration,
+} from '../services/points';
 
-/** 文生图请求体 */
 interface TextToImageGenerateBody {
-  /** 图片生成提示词（可选，不传则使用默认提示词） */
   prompt?: string;
-  /** 图片尺寸（可选，默认 1024x1536） */
   size?: string;
-  /** 模型名称（可选，默认 gpt-image-1.5-all） */
   model?: string;
-  /** 生成图片数量（可选，默认 1） */
   n?: number;
-  /** 图片质量（可选，默认 medium，支持：low、medium、high） */
   quality?: string;
-  /** 图片风格（可选，默认 vivid，支持：vivid、natural） */
   style?: string;
-  /** 是否上传到COS（可选，默认 true） */
   uploadToCos?: boolean;
-  /** 是否使用流式上传（可选，默认 true） */
   useStream?: boolean;
 }
 
-/** 图生图请求体 */
 interface ImageToImageBody {
-  /** 提示词 */
   prompt: string;
-  /** 尺寸比例（如 "4:3"） */
   size?: string;
-  /** 图片URL数组 */
   imageUrl: string[];
-  /** 是否上传到COS（可选，默认 true） */
   uploadToCos?: boolean;
-  /** 是否使用流式上传（可选，默认 true） */
   useStream?: boolean;
 }
 
 @Tags('文生图')
 @Route('app/text-to-image')
 export class TextToImageController extends Controller {
-  /**
-   * 文本生成图片并上传到COS
-   * POST /app/text-to-image
-   *
-   * 工作流程：
-   * 1. 调用第三方API生成图片
-   * 2. 立即返回第三方URL + taskId
-   * 3. 后台异步上传到COS
-   * 4. 前端可通过 taskId 查询上传状态
-   */
   @Post('/')
   @Security('jwt')
   async generateImageAndUpload(
@@ -68,7 +40,6 @@ export class TextToImageController extends Controller {
     @Request() req: ExpressRequest
   ): Promise<any> {
     const userId = (req as any).user?.id;
-
     const {
       size = '1024x1536',
       model = 'gpt-image-1.5-all',
@@ -78,80 +49,79 @@ export class TextToImageController extends Controller {
       uploadToCos = true,
       useStream = true,
     } = body;
-
-    // 使用默认提示词（如果未提供）
     const finalPrompt = body.prompt || thirdPartyImageService.getDefaultPrompt();
     const sessionId = uuidv4();
+    let reservation: any = null;
 
-    console.log('=== [TextToImage] 开始处理请求 ===');
-    console.log('[TextToImage] 用户ID: %d, Session ID: %s', userId, sessionId);
-    console.log('[TextToImage] 图片生成参数: model=%s, n=%d, size=%s, quality=%s, style=%s', model, n, size, quality, style);
-    console.log('[TextToImage] 上传配置: uploadToCos=%s, useStream=%s', uploadToCos, useStream);
+    try {
+      reservation = await reservePointsForImageGeneration({ userId, modelName: model, quantity: n });
 
-    // 1. 调用第三方API生成图片
-    const apiResult = await thirdPartyImageService.generateImage({ prompt: finalPrompt, size, model, n, quality, style });
+      const apiResult = await thirdPartyImageService.generateImage({ prompt: finalPrompt, size, model, n, quality, style });
+      const imageUrls = thirdPartyImageService.extractImageUrls(apiResult.data);
 
-    // 2. 提取图片URL
-    const imageUrls = thirdPartyImageService.extractImageUrls(apiResult.data);
-    if (imageUrls.length === 0) {
-      this.setStatus(500);
-      return { success: false, code: 500, message: '第三方API未返回图片URL' };
-    }
+      if (imageUrls.length === 0) {
+        throw new Error('第三方 API 未返回图片 URL');
+      }
 
-    const imageUrl = imageUrls[0];
-    console.log('[TextToImage] 图片URL:', imageUrl);
+      const imageUrl = imageUrls[0];
+      let uploadTask: any = null;
+      if (uploadToCos) {
+        uploadTask = openaiService.createUploadTask(
+          { sourceType: 'url', originalUrl: imageUrl, imageUrl },
+          { useStream: Boolean(useStream), startUploadImmediately: true }
+        );
+      }
 
-    // 3. 创建上传任务（如果需要）
-    let uploadTask: any = null;
-    if (uploadToCos) {
-      uploadTask = openaiService.createUploadTask(
-        { sourceType: 'url', originalUrl: imageUrl, imageUrl },
-        { useStream: Boolean(useStream), startUploadImmediately: true }
-      );
-      console.log('[TextToImage] 创建上传任务: taskId=%s', uploadTask.taskId);
-    }
+      const recordId = await ImageGenerationRecord.create({
+        session_id: sessionId,
+        user_id: userId,
+        generation_type: 'text-to-image',
+        prompt: finalPrompt,
+        model,
+        size,
+        quality,
+        style,
+        n,
+        third_party_url: imageUrl,
+        upload_task_id: uploadTask?.taskId,
+        status: 'pending',
+      });
 
-    // 4. 创建生成记录
-    const recordId = await ImageGenerationRecord.create({
-      session_id: sessionId,
-      user_id: userId,
-      generation_type: 'text-to-image',
-      prompt: finalPrompt,
-      model,
-      size,
-      quality,
-      style,
-      n,
-      third_party_url: imageUrl,
-      upload_task_id: uploadTask?.taskId,
-      status: 'pending',
-    });
+      confirmReservedPoints(reservation, { recordId, sessionId, model, quantity: n });
 
-    console.log('[TextToImage] 创建生成记录: recordId=%d', recordId);
-
-    // 5. 构建响应数据
-    const responseData: any = {
-      success: true,
-      message: '成功',
-      timestamp: new Date().toISOString(),
-      data: { recordId, sessionId, thirdPartyUrl: imageUrl, thirdPartyResponse: apiResult.data },
-    };
-
-    if (uploadTask) {
-      responseData.data.upload = {
-        taskId: uploadTask.taskId,
-        status: uploadTask.status,
-        queryPath: `/app/text-to-image/tasks/${uploadTask.taskId}`,
+      const responseData: any = {
+        success: true,
+        message: '成功',
+        timestamp: new Date().toISOString(),
+        data: {
+          recordId,
+          sessionId,
+          thirdPartyUrl: imageUrl,
+          thirdPartyResponse: apiResult.data,
+        },
       };
-    }
 
-    return responseData;
+      if (uploadTask) {
+        responseData.data.upload = {
+          taskId: uploadTask.taskId,
+          status: uploadTask.status,
+          queryPath: `/app/text-to-image/tasks/${uploadTask.taskId}`,
+        };
+      }
+
+      return responseData;
+    } catch (error) {
+      await releaseReservedPoints(reservation, 'text-to-image-failed');
+      const pointsError = buildPointsErrorResponse(error);
+      if (pointsError) {
+        this.setStatus(pointsError.statusCode);
+        return pointsError.body;
+      }
+      this.setStatus(500);
+      return { success: false, code: 500, message: error instanceof Error ? error.message : '生图失败' };
+    }
   }
 
-  /**
-   * 查询上传任务状态
-   * GET /app/text-to-image/tasks/:taskId
-   */
   @Get('/tasks/{taskId}')
   async getUploadTaskStatus(@Path() taskId: string): Promise<any> {
     if (!taskId) {
@@ -168,10 +138,6 @@ export class TextToImageController extends Controller {
     return { code: 200, data: task };
   }
 
-  /**
-   * 查询当前用户的生成历史记录
-   * GET /app/text-to-image/records
-   */
   @Get('/records')
   @Security('jwt')
   async getRecordsByUser(
@@ -181,16 +147,10 @@ export class TextToImageController extends Controller {
     @Query() limit?: number
   ): Promise<any> {
     const userId = (req as any).user?.id;
-
     const result = await ImageGenerationRecord.listByUserId(userId, { generation_type, page, limit });
-
     return { success: true, code: 200, data: result };
   }
 
-  /**
-   * 根据 session_id 查询单条记录
-   * GET /app/text-to-image/records/:sessionId
-   */
   @Get('/records/{sessionId}')
   @Security('jwt')
   async getRecordBySession(
@@ -218,10 +178,6 @@ export class TextToImageController extends Controller {
     return { success: true, code: 200, data: record };
   }
 
-  /**
-   * 图生图接口
-   * POST /app/text-to-image/image-to-image
-   */
   @Post('/image-to-image')
   @Security('jwt')
   async imageToImage(
@@ -229,6 +185,7 @@ export class TextToImageController extends Controller {
     @Request() req: ExpressRequest
   ): Promise<any> {
     const userId = (req as any).user?.id;
+    let reservation: any = null;
 
     if (!body.prompt || !body.imageUrl || !Array.isArray(body.imageUrl) || body.imageUrl.length === 0) {
       this.setStatus(400);
@@ -237,70 +194,78 @@ export class TextToImageController extends Controller {
 
     const { size, uploadToCos = true, useStream = true } = body;
     const sessionId = uuidv4();
+    const model = 'gpt-image-1.5-all';
 
-    console.log('[ImageToImage] 用户ID: %d, Session ID: %s', userId, sessionId);
-    console.log('[ImageToImage] 上传配置: uploadToCos=%s, useStream=%s', uploadToCos, useStream);
+    try {
+      reservation = await reservePointsForImageGeneration({ userId, modelName: model, quantity: 1 });
 
-    // 调用第三方API
-    const apiResult = await thirdPartyImageService.imageToImage({
-      prompt: body.prompt,
-      size,
-      imageUrl: body.imageUrl,
-    });
+      const apiResult = await thirdPartyImageService.imageToImage({
+        prompt: body.prompt,
+        size,
+        imageUrl: body.imageUrl,
+      });
 
-    // 提取图片URL
-    const generatedUrls = thirdPartyImageService.extractImageUrlFromChat(apiResult.data);
-    if (generatedUrls.length === 0) {
-      this.setStatus(500);
-      return { success: false, code: 500, message: '第三方API未返回图片URL' };
-    }
+      const generatedUrls = thirdPartyImageService.extractImageUrlFromChat(apiResult.data);
+      if (generatedUrls.length === 0) {
+        throw new Error('第三方 API 未返回图片 URL');
+      }
 
-    const generatedUrl = generatedUrls[0];
-    console.log('[ImageToImage] 生成图片URL:', generatedUrl);
+      const generatedUrl = generatedUrls[0];
+      let uploadTask: any = null;
+      if (uploadToCos) {
+        uploadTask = openaiService.createUploadTask(
+          { sourceType: 'url', originalUrl: generatedUrl, imageUrl: generatedUrl },
+          { useStream: Boolean(useStream), startUploadImmediately: true }
+        );
+      }
 
-    // 创建上传任务（如果需要）
-    let uploadTask: any = null;
-    if (uploadToCos) {
-      uploadTask = openaiService.createUploadTask(
-        { sourceType: 'url', originalUrl: generatedUrl, imageUrl: generatedUrl },
-        { useStream: Boolean(useStream), startUploadImmediately: true }
-      );
-      console.log('[ImageToImage] 创建上传任务: taskId=%s', uploadTask.taskId);
-    }
+      const recordId = await ImageGenerationRecord.create({
+        session_id: sessionId,
+        user_id: userId,
+        generation_type: 'image-to-image',
+        prompt: `${body.prompt} 尺寸[${size || ''}]`,
+        model,
+        size: size || '',
+        quality: 'medium',
+        style: 'vivid',
+        n: 1,
+        third_party_url: generatedUrl,
+        upload_task_id: uploadTask?.taskId,
+        status: 'pending',
+      });
 
-    // 创建记录
-    const recordId = await ImageGenerationRecord.create({
-      session_id: sessionId,
-      user_id: userId,
-      generation_type: 'image-to-image',
-      prompt: `${body.prompt} 尺寸[${size || ''}]`,
-      model: 'gpt-image-1.5-all',
-      size: size || '',
-      quality: 'medium',
-      style: 'vivid',
-      n: 1,
-      third_party_url: generatedUrl,
-      upload_task_id: uploadTask?.taskId,
-      status: 'pending',
-    });
+      confirmReservedPoints(reservation, { recordId, sessionId, model, quantity: 1 });
 
-    console.log('[ImageToImage] 创建生成记录: recordId=%d', recordId);
-
-    const responseData: any = {
-      success: true,
-      message: '成功',
-      timestamp: new Date().toISOString(),
-      data: { recordId, sessionId, thirdPartyUrl: generatedUrl, thirdPartyResponse: apiResult.data },
-    };
-
-    if (uploadTask) {
-      responseData.data.upload = {
-        taskId: uploadTask.taskId,
-        status: uploadTask.status,
-        queryPath: `/app/text-to-image/tasks/${uploadTask.taskId}`,
+      const responseData: any = {
+        success: true,
+        message: '成功',
+        timestamp: new Date().toISOString(),
+        data: {
+          recordId,
+          sessionId,
+          thirdPartyUrl: generatedUrl,
+          thirdPartyResponse: apiResult.data,
+        },
       };
-    }
 
-    return responseData;
+      if (uploadTask) {
+        responseData.data.upload = {
+          taskId: uploadTask.taskId,
+          status: uploadTask.status,
+          queryPath: `/app/text-to-image/tasks/${uploadTask.taskId}`,
+        };
+      }
+
+      return responseData;
+    } catch (error) {
+      await releaseReservedPoints(reservation, 'image-to-image-failed');
+      const pointsError = buildPointsErrorResponse(error);
+      if (pointsError) {
+        this.setStatus(pointsError.statusCode);
+        return pointsError.body;
+      }
+      this.setStatus(500);
+      return { success: false, code: 500, message: error instanceof Error ? error.message : '图生图失败' };
+    }
   }
 }

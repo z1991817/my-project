@@ -15,10 +15,12 @@ import User from '../models/user';
 import * as emailService from '../services/email';
 import * as verificationCodeService from '../services/verificationCode';
 import redis from '../config/redis';
+import { appendRegisterBonusLog } from '../services/recharge';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_in_production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const REGISTER_BONUS_POINTS = 1000;
 
 /** 登录请求体 */
 interface LoginBody {
@@ -91,7 +93,7 @@ export class AuthController extends Controller {
       message: '登录成功',
       data: {
         token,
-        user: { id: user.id, username: user.username, nickname: user.nickname, email: user.email, avatar: user.avatar },
+        user: { id: user.id, username: user.username, nickname: user.nickname, email: user.email, avatar: user.avatar, points: user.points },
       },
     };
   }
@@ -121,6 +123,7 @@ export class AuthController extends Controller {
         email: user.email,
         phone: user.phone,
         avatar: user.avatar,
+        points: user.points,
         status: user.status,
         created_at: user.created_at,
       },
@@ -205,7 +208,8 @@ export class AuthController extends Controller {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = await User.create({ username, email, password: hashedPassword, nickname: username });
+    const userId = await User.create({ username, email, password: hashedPassword, nickname: username, points: REGISTER_BONUS_POINTS });
+    await appendRegisterBonusLog(userId, REGISTER_BONUS_POINTS);
 
     const token = jwt.sign(
       { id: userId, username, nickname: username, email },
@@ -219,7 +223,7 @@ export class AuthController extends Controller {
       message: '注册成功',
       data: {
         token,
-        user: { id: userId, username, nickname: username, email, avatar: null },
+        user: { id: userId, username, nickname: username, email, avatar: null, points: REGISTER_BONUS_POINTS },
       },
     };
   }

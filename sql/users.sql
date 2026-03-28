@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone`       VARCHAR(20)     DEFAULT NULL COMMENT '手机号（可选）',
   `nickname`    VARCHAR(100)    DEFAULT NULL COMMENT '昵称',
   `avatar`      VARCHAR(500)    DEFAULT NULL COMMENT '头像URL',
+  `points`      INT             NOT NULL DEFAULT 1000 COMMENT '积分',
   `status`      TINYINT         NOT NULL DEFAULT 1 COMMENT '状态: 1=正常 0=禁用',
   `created_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- 插入测试用户
 -- 用户名：测试
 -- 密码：123456（bcrypt 加密，salt rounds=10）
-INSERT INTO `users` (`username`, `password`, `nickname`, `email`, `phone`, `avatar`, `status`)
+INSERT INTO `users` (`username`, `password`, `nickname`, `email`, `phone`, `avatar`, `points`, `status`)
 VALUES (
   '测试',
   '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
@@ -29,5 +30,6 @@ VALUES (
   'test@example.com',
   '13800138000',
   'https://api.dicebear.com/7.x/avataaars/svg?seed=test',
+  1000,
   1
 ) ON DUPLICATE KEY UPDATE `id` = `id`;

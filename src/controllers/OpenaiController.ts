@@ -1,99 +1,58 @@
-/**
- * =====================================================
- * OpenaiController - OpenAI 接口控制器
- * =====================================================
- * 路由前缀：/app
- * 功能：图片分析、文本生成、DALL-E 图片生成、Chat Completions 图片生成
- * 注意：generateImageByChatCompletions 含 SSE 流式响应，直接操作 Express res
- * =====================================================
- */
-
-import { Controller, Post, Get, Body, Route, Security, Request, Tags, Path } from 'tsoa';
+import { Body, Controller, Get, Path, Post, Request, Route, Security, Tags } from 'tsoa';
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { randomUUID } from 'crypto';
 import * as openaiService from '../services/openai';
 import Image from '../models/image';
 import Conversation from '../models/conversation';
+import {
+  buildPointsErrorResponse,
+  confirmReservedPoints,
+  releaseReservedPoints,
+  reservePointsForImageGeneration,
+} from '../services/points';
 
-/** 图片分析请求体 */
 interface AnalyzeImageBody {
-  /** 图片URL */
   imageUrl: string;
-  /** 分析提示词（可选） */
   prompt?: string;
 }
 
-/** 文本生成请求体 */
 interface GenerateTextBody {
-  /** 提示词 */
   prompt: string;
-  /** 系统提示词（可选） */
   systemPrompt?: string;
 }
 
-/** DALL-E 图片生成请求体 */
 interface OpenaiGenerateImageBody {
-  /** 提示词 */
   prompt: string;
-  /** 模型（可选） */
   model?: string;
-  /** 生成数量（可选） */
   n?: number;
-  /** 尺寸（可选） */
   size?: string;
-  /** 响应格式（可选） */
   response_format?: string;
-  /** 风格（可选） */
   style?: string;
-  /** 质量（可选） */
   quality?: string;
-  /** 是否上传到COS（可选，默认 true） */
   uploadToCos?: boolean;
-  /** 是否在响应中包含 Base64（可选，默认 false） */
   includeBase64InResponse?: boolean;
-  /** 是否在响应中包含缩略图（可选） */
   includeThumbnailInResponse?: boolean;
-  /** 是否保存到数据库（可选，默认 true） */
   saveToDb?: boolean;
-  /** 标题（可选） */
   title?: string;
-  /** 描述（可选） */
   description?: string;
-  /** 分类ID（可选） */
   category_id?: number;
 }
 
-/** Chat Completions 图片生成请求体 */
 interface GenerateImageByChatBody {
-  /** 会话ID（可选，不传则创建新会话） */
   session_id?: string;
-  /** 提示词 */
   prompt?: string;
-  /** 参考图片URL（可选） */
   imageUrl?: string;
-  /** 自定义消息数组（可选，优先级高于 prompt） */
   messages?: Array<{ role: string; content: any }>;
-  /** 模型（可选，默认 gpt-4o-image） */
   model?: string;
-  /** 分组（可选） */
   group?: string;
-  /** 是否流式返回（可选，默认 false） */
   stream?: boolean;
-  /** 是否上传到COS（可选，默认 true） */
   uploadToCos?: boolean;
-  /** 温度参数（可选） */
   temperature?: number;
-  /** top_p 参数（可选） */
   top_p?: number;
-  /** frequency_penalty 参数（可选） */
   frequency_penalty?: number;
-  /** presence_penalty 参数（可选） */
   presence_penalty?: number;
 }
 
-/**
- * 将任意值转换为 boolean
- */
 function toBoolean(value: any, defaultValue = false): boolean {
   if (value === undefined || value === null) return defaultValue;
   if (typeof value === 'boolean') return value;
@@ -105,9 +64,6 @@ function toBoolean(value: any, defaultValue = false): boolean {
   return Boolean(value);
 }
 
-/**
- * 验证并规范化 session_id（仅接受 UUID v4 格式）
- */
 function validateAndNormalizeSessionId(sessionId: any): string | null {
   if (!sessionId || typeof sessionId !== 'string') return null;
   const trimmed = sessionId.trim();
@@ -116,15 +72,36 @@ function validateAndNormalizeSessionId(sessionId: any): string | null {
   return trimmed;
 }
 
-/**
- * 创建流式内容收集器，流结束后将 AI 回复保存到数据库
- */
+function extractImageUrlsFromText(value: any): string[] {
+  if (typeof value !== 'string' || !value) return [];
+  const markdownMatches = value.match(/!\[[^\]]*]\((https?:\/\/[^)\s]+)\)/gi) || [];
+  const markdownUrls = markdownMatches
+    .map((item) => item.match(/\((https?:\/\/[^)\s]+)\)/i)?.[1] || '')
+    .filter(Boolean);
+  const directUrls = value.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+\.(?:png|jpg|jpeg|gif|webp)/gi) || [];
+  return Array.from(new Set([...markdownUrls, ...directUrls]));
+}
+
+function containsImageOutput(payload: any): boolean {
+  if (!payload) return false;
+  if (typeof payload === 'string') return extractImageUrlsFromText(payload).length > 0;
+  if (Array.isArray(payload)) return payload.some((item) => containsImageOutput(item));
+  if (typeof payload !== 'object') return false;
+
+  if (typeof payload.url === 'string' && payload.url.trim()) return true;
+  if (typeof payload.b64_json === 'string' && payload.b64_json.trim()) return true;
+  if (typeof payload.cos_url === 'string' && payload.cos_url.trim()) return true;
+  if (typeof payload.imageBase64 === 'string' && payload.imageBase64.trim()) return true;
+  if (typeof payload.image_id === 'number') return true;
+
+  return Object.values(payload).some((value) => containsImageOutput(value));
+}
+
 function createStreamContentCollector(sessionId: string, shouldSave: boolean) {
   let fullContent = '';
   let imageId: number | null = null;
 
   return {
-    /** 收集流数据块 */
     collect(chunk: Buffer) {
       if (!shouldSave) return;
       try {
@@ -143,22 +120,60 @@ function createStreamContentCollector(sessionId: string, shouldSave: boolean) {
               imageId = Number(parsed.image_id);
             }
           } catch (_) {
-            // 忽略 JSON 解析错误
+            // ignore chunk parse errors
           }
         }
       } catch (_) {
-        // 收集失败不阻塞流
+        // ignore stream collector errors
       }
     },
 
-    /** 将完整内容保存到数据库 */
     async save() {
       if (!shouldSave || !fullContent) return;
       try {
         await Conversation.updateLastAssistantMessage(sessionId, fullContent, imageId);
       } catch (_) {
-        // 保存失败不阻塞主流程
+        // ignore persistence errors
       }
+    },
+  };
+}
+
+function createStreamBillingTracker(reservation: any, meta: Record<string, any>) {
+  let confirmed = false;
+
+  return {
+    collect(chunk: Buffer) {
+      if (confirmed) return;
+      const text = chunk.toString('utf8');
+      const lines = text.split('\n');
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (!data || data === '[DONE]') continue;
+
+        try {
+          const parsed = JSON.parse(data);
+          if (containsImageOutput(parsed)) {
+            confirmReservedPoints(reservation, meta);
+            confirmed = true;
+            break;
+          }
+        } catch (_) {
+          // ignore chunk parse errors
+        }
+      }
+    },
+
+    async handleEnd() {
+      if (confirmed) return;
+      await releaseReservedPoints(reservation, 'textToimageNew-stream-no-image');
+    },
+
+    async handleError() {
+      if (confirmed) return;
+      await releaseReservedPoints(reservation, 'textToimageNew-stream-error');
     },
   };
 }
@@ -166,10 +181,6 @@ function createStreamContentCollector(sessionId: string, shouldSave: boolean) {
 @Tags('OpenAI')
 @Route('app')
 export class OpenaiController extends Controller {
-  /**
-   * 图片分析
-   * POST /app/analyzeImage
-   */
   @Post('/analyzeImage')
   async analyzeImage(@Body() body: AnalyzeImageBody): Promise<any> {
     if (!body.imageUrl) {
@@ -180,10 +191,6 @@ export class OpenaiController extends Controller {
     return { code: 200, data: result };
   }
 
-  /**
-   * 文本生成
-   * POST /app/generateText
-   */
   @Post('/generateText')
   async generateText(@Body() body: GenerateTextBody): Promise<any> {
     if (!body.prompt) {
@@ -194,10 +201,6 @@ export class OpenaiController extends Controller {
     return { code: 200, data: { content: result } };
   }
 
-  /**
-   * DALL-E 图片生成
-   * POST /app/generateImage
-   */
   @Post('/generateImage')
   @Security('jwt')
   async generateImage(@Body() body: OpenaiGenerateImageBody, @Request() req: ExpressRequest): Promise<any> {
@@ -206,98 +209,109 @@ export class OpenaiController extends Controller {
       return { code: 400, message: 'Missing prompt' };
     }
 
-    const options = {
-      model: body.model,
-      n: body.n,
-      size: body.size,
-      response_format: body.response_format,
-      style: body.style,
-      quality: body.quality,
-      uploadToCos: toBoolean(body.uploadToCos, true),
-      includeBase64InResponse: toBoolean(body.includeBase64InResponse, false),
-      includeThumbnailInResponse: toBoolean(body.includeThumbnailInResponse, true),
-      startUploadImmediately: false, // app 路由延迟启动上传
-    };
+    const userId = (req as any).user?.id;
+    const modelName = body.model || 'gpt-4o-image';
+    const quantity = Math.max(1, Number(body.n) || 1);
+    let reservation: any = null;
 
-    let results = await openaiService.generateImage(body.prompt, options);
+    try {
+      reservation = await reservePointsForImageGeneration({ userId, modelName, quantity });
 
-    // 追加 queryPath
-    results = results.map((item: any) => {
-      if (!item.upload?.taskId) return item;
-      return {
-        ...item,
-        thumbnail: item.thumbnail || null,
-        upload: {
-          ...item.upload,
-          queryPath: `/app/textToImage/tasks/${item.upload.taskId}`,
-        },
+      const options = {
+        model: body.model,
+        n: body.n,
+        size: body.size,
+        response_format: body.response_format,
+        style: body.style,
+        quality: body.quality,
+        uploadToCos: toBoolean(body.uploadToCos, true),
+        includeBase64InResponse: toBoolean(body.includeBase64InResponse, false),
+        includeThumbnailInResponse: toBoolean(body.includeThumbnailInResponse, true),
+        startUploadImmediately: false,
       };
-    });
 
-    // 保存到数据库
-    if (toBoolean(body.saveToDb, true)) {
-      try {
-        results = await Promise.all(
-          results.map(async (item: any, index: number) => {
-            const taskId = item.upload?.taskId || null;
-            const sourceUrl = item.imageUrl || null;
-            const initialUrl = sourceUrl || (taskId ? `openai://task/${taskId}` : `openai://generated/${Date.now()}-${index}`);
-            const imageId = await Image.createFromOpenAITask({
-              url: initialUrl,
-              source_url: sourceUrl,
-              thumbnail: item.thumbnail || null,
-              title: body.title,
-              description: body.description,
-              prompt: body.prompt,
-              category_id: body.category_id,
-              upload_task_id: taskId,
-              upload_status: item.upload?.status || null,
-              upload_error: null,
-            });
-            if (taskId) {
-              openaiService.bindUploadTask(taskId, imageId);
-            }
-            return { ...item, imageId };
-          })
-        );
-      } catch (error: any) {
-        if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
-          this.setStatus(500);
-          return {
-            code: 500,
-            message: 'Database schema is outdated. Please run scripts/add_openai_task_columns.sql.',
-          };
-        }
-        throw error;
+      let results = await openaiService.generateImage(body.prompt, options);
+      if (!Array.isArray(results) || !results.some((item: any) => containsImageOutput(item))) {
+        throw new Error('OpenAI 未返回图片结果');
       }
-    }
 
-    const date = new Date().toISOString().split('T')[0];
-    const payload = { code: 200, data: { list: results, date } };
-
-    // 延迟启动上传任务（在响应发送后触发）
-    const taskIds = results
-      .map((item: any) => item.upload?.taskId)
-      .filter((id: any) => typeof id === 'string' && id.length > 0);
-
-    if (taskIds.length > 0) {
-      setImmediate(() => {
-        try {
-          openaiService.startUploadTasks(taskIds);
-        } catch (startError: any) {
-          console.error('[start-upload-tasks-failed]', startError.message);
-        }
+      results = results.map((item: any) => {
+        if (!item.upload?.taskId) return item;
+        return {
+          ...item,
+          thumbnail: item.thumbnail || null,
+          upload: {
+            ...item.upload,
+            queryPath: `/app/textToImage/tasks/${item.upload.taskId}`,
+          },
+        };
       });
-    }
 
-    return payload;
+      if (toBoolean(body.saveToDb, true)) {
+        try {
+          results = await Promise.all(
+            results.map(async (item: any, index: number) => {
+              const taskId = item.upload?.taskId || null;
+              const sourceUrl = item.imageUrl || null;
+              const initialUrl = sourceUrl || (taskId ? `openai://task/${taskId}` : `openai://generated/${Date.now()}-${index}`);
+              const imageId = await Image.createFromOpenAITask({
+                url: initialUrl,
+                source_url: sourceUrl,
+                thumbnail: item.thumbnail || null,
+                title: body.title,
+                description: body.description,
+                prompt: body.prompt,
+                category_id: body.category_id,
+                upload_task_id: taskId,
+                upload_status: item.upload?.status || null,
+                upload_error: null,
+              });
+              if (taskId) {
+                openaiService.bindUploadTask(taskId, imageId);
+              }
+              return { ...item, imageId };
+            })
+          );
+        } catch (error: any) {
+          if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
+            throw new Error('Database schema is outdated. Please run scripts/add_openai_task_columns.sql.');
+          }
+          throw error;
+        }
+      }
+
+      confirmReservedPoints(reservation, { model: modelName, quantity });
+
+      const date = new Date().toISOString().split('T')[0];
+      const payload = { code: 200, data: { list: results, date } };
+
+      const taskIds = results
+        .map((item: any) => item.upload?.taskId)
+        .filter((id: any) => typeof id === 'string' && id.length > 0);
+
+      if (taskIds.length > 0) {
+        setImmediate(() => {
+          try {
+            openaiService.startUploadTasks(taskIds);
+          } catch (startError: any) {
+            console.error('[start-upload-tasks-failed]', startError.message);
+          }
+        });
+      }
+
+      return payload;
+    } catch (error) {
+      await releaseReservedPoints(reservation, 'generateImage-failed');
+      const pointsError = buildPointsErrorResponse(error);
+      if (pointsError) {
+        this.setStatus(pointsError.statusCode);
+        return pointsError.body;
+      }
+      this.setStatus(500);
+      return { code: 500, message: error instanceof Error ? error.message : 'generateImage failed' };
+    }
   }
 
-  /**
-   * Chat Completions 图片生成（支持多轮对话 + SSE 流式）
-   * POST /app/textToimageNew
-   * 注意：SSE 流式响应时直接操作 Express res，绕过 tsoa 响应序列化
-   */
   @Post('/textToimageNew')
   @Security('jwt')
   async generateImageByChatCompletions(
@@ -305,6 +319,7 @@ export class OpenaiController extends Controller {
     @Request() req: ExpressRequest
   ): Promise<any> {
     const res = (req as any).res as ExpressResponse;
+    const userId = (req as any).user?.id;
     const hasMessages = Array.isArray(body.messages) && body.messages.length > 0;
 
     if (!hasMessages && !body.prompt) {
@@ -312,108 +327,126 @@ export class OpenaiController extends Controller {
       return { code: 400, message: 'Missing prompt or messages' };
     }
 
+    const modelName = body.model || 'gpt-4o-image';
+    const quantity = 2;
     const sessionId = validateAndNormalizeSessionId(body.session_id);
+    let reservation: any = null;
 
-    // 加载对话历史
-    let messages: Array<{ role: string; content: any }> = [];
-    if (sessionId) {
-      try {
-        const history = await Conversation.getBySessionId(sessionId, 10);
-        if (history.length > 0) {
-          messages = history
-            .filter((r: any) => r.content && r.content.trim().length > 0)
-            .map((r: any) => ({ role: r.role, content: r.content }));
+    try {
+      reservation = await reservePointsForImageGeneration({ userId, modelName, quantity });
+
+      let messages: Array<{ role: string; content: any }> = [];
+      if (sessionId) {
+        try {
+          const history = await Conversation.getBySessionId(sessionId, 10);
+          if (history.length > 0) {
+            messages = history
+              .filter((r: any) => r.content && r.content.trim().length > 0)
+              .map((r: any) => ({ role: r.role, content: r.content }));
+          }
+        } catch (_) {
+          // degrade when history load fails
         }
-      } catch (_) {
-        // 降级：加载历史失败不阻塞
       }
-    }
 
-    if (hasMessages) {
-      messages = body.messages!;
-    } else {
-      const userMessage: any = {
-        role: 'user',
-        content: body.imageUrl
-          ? [
-              { type: 'text', text: body.prompt },
-              { type: 'image_url', image_url: { url: body.imageUrl } },
-            ]
-          : body.prompt,
+      if (hasMessages) {
+        messages = body.messages!;
+      } else {
+        const userMessage: any = {
+          role: 'user',
+          content: body.imageUrl
+            ? [
+                { type: 'text', text: body.prompt },
+                { type: 'image_url', image_url: { url: body.imageUrl } },
+              ]
+            : body.prompt,
+        };
+        messages.push(userMessage);
+      }
+
+      const finalSessionId = sessionId || randomUUID();
+
+      if (!hasMessages) {
+        try {
+          await Conversation.create(finalSessionId, 'user', body.prompt!, null);
+          await Conversation.create(finalSessionId, 'assistant', '', null);
+        } catch (_) {
+          // ignore persistence failures here
+        }
+      }
+
+      const options: any = {
+        model: modelName,
+        group: body.group || 'default',
+        stream: toBoolean(body.stream, false),
+        uploadToCos: toBoolean(body.uploadToCos, true),
+        temperature: body.temperature !== undefined ? body.temperature : 0.7,
+        top_p: body.top_p !== undefined ? body.top_p : 1,
+        frequency_penalty: body.frequency_penalty !== undefined ? body.frequency_penalty : 0,
+        presence_penalty: body.presence_penalty !== undefined ? body.presence_penalty : 0,
+        messages,
+        n: quantity,
       };
-      messages.push(userMessage);
-    }
 
-    const finalSessionId = sessionId || randomUUID();
+      const result = await openaiService.generateImageByChatCompletions(options);
 
-    // 保存用户消息和空占位符
-    if (!hasMessages) {
-      try {
-        await Conversation.create(finalSessionId, 'user', body.prompt!, null);
-        await Conversation.create(finalSessionId, 'assistant', '', null);
-      } catch (_) {
-        // 保存失败不阻塞
+      if (result.stream) {
+        const streamCollector = createStreamContentCollector(finalSessionId, !hasMessages);
+        const billingTracker = createStreamBillingTracker(reservation, { sessionId: finalSessionId, model: modelName, quantity });
+
+        res.status(result.status);
+        Object.entries(result.headers as Record<string, any>).forEach(([key, value]) => {
+          if (value !== undefined) res.setHeader(key, value as string);
+        });
+        res.setHeader('X-Session-Id', finalSessionId);
+
+        result.stream.on('data', (chunk: Buffer) => {
+          streamCollector.collect(chunk);
+          billingTracker.collect(chunk);
+        });
+        result.stream.on('end', async () => {
+          await streamCollector.save();
+          await billingTracker.handleEnd();
+        });
+        result.stream.on('error', async (err: Error) => {
+          console.error('[textToimageNew] stream error:', err.message);
+          await billingTracker.handleError();
+        });
+        result.stream.pipe(res);
+        return;
       }
-    }
 
-    const options: any = {
-      model: body.model || 'gpt-4o-image',
-      group: body.group || 'default',
-      stream: toBoolean(body.stream, false),
-      uploadToCos: toBoolean(body.uploadToCos, true),
-      temperature: body.temperature !== undefined ? body.temperature : 0.7,
-      top_p: body.top_p !== undefined ? body.top_p : 1,
-      frequency_penalty: body.frequency_penalty !== undefined ? body.frequency_penalty : 0,
-      presence_penalty: body.presence_penalty !== undefined ? body.presence_penalty : 0,
-      messages,
-      n: 2,
-    };
+      if (!containsImageOutput(result.data)) {
+        throw new Error('OpenAI 未返回图片结果');
+      }
 
-    console.log('[textToimageNew] 传给第三方API的参数:', JSON.stringify(options, null, 2));
-
-    const result = await openaiService.generateImageByChatCompletions(options);
-
-    // ========== 流式响应 ==========
-    if (result.stream) {
-      const streamCollector = createStreamContentCollector(finalSessionId, !hasMessages);
-
-      res.status(result.status);
-      Object.entries(result.headers as Record<string, any>).forEach(([key, value]) => {
-        if (value !== undefined) res.setHeader(key, value as string);
-      });
-      res.setHeader('X-Session-Id', finalSessionId);
-
-      result.stream.on('data', (chunk: Buffer) => streamCollector.collect(chunk));
-      result.stream.on('end', () => streamCollector.save());
-      result.stream.on('error', (err: Error) => {
-        console.error('[textToimageNew] stream error:', err.message);
-      });
-      result.stream.pipe(res);
-      return;
-    }
-
-    // ========== 非流式响应 ==========
-    if (!hasMessages) {
-      try {
-        const aiContent = result.data?.choices?.[0]?.message?.content || '';
-        if (aiContent) {
-          await Conversation.updateLastAssistantMessage(finalSessionId, aiContent);
+      if (!hasMessages) {
+        try {
+          const aiContent = result.data?.choices?.[0]?.message?.content || '';
+          if (aiContent) {
+            await Conversation.updateLastAssistantMessage(finalSessionId, aiContent);
+          }
+        } catch (_) {
+          // ignore persistence failures
         }
-      } catch (_) {
-        // 保存失败不阻塞
       }
-    }
 
-    return res.status(result.status).json({
-      code: 200,
-      data: { session_id: finalSessionId, ...result.data },
-    });
+      confirmReservedPoints(reservation, { sessionId: finalSessionId, model: modelName, quantity });
+
+      return res.status(result.status).json({
+        code: 200,
+        data: { session_id: finalSessionId, ...result.data },
+      });
+    } catch (error) {
+      await releaseReservedPoints(reservation, 'textToimageNew-failed');
+      const pointsError = buildPointsErrorResponse(error);
+      if (pointsError) {
+        return res.status(pointsError.statusCode).json(pointsError.body);
+      }
+      return res.status(500).json({ code: 500, message: error instanceof Error ? error.message : 'textToimageNew failed' });
+    }
   }
 
-  /**
-   * 查询上传任务状态
-   * GET /app/textToImage/tasks/:taskId
-   */
   @Get('/textToImage/tasks/{taskId}')
   async getUploadTaskStatus(@Path() taskId: string): Promise<any> {
     if (!taskId) {

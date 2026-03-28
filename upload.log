@@ -1,0 +1,48 @@
+2026-03-26T09:12:40.071Z [upload-start] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de sourceType=url useStream=true attempt=1/3
+2026-03-26T09:12:45.724Z [upload-retry] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de attempts=1/3 error=Client network socket disconnected before secure TLS connection was established
+2026-03-26T09:12:50.724Z [upload-start] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de sourceType=url useStream=true attempt=2/3
+2026-03-26T09:12:55.924Z [upload-retry] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de attempts=2/3 error=Client network socket disconnected before secure TLS connection was established
+2026-03-26T09:13:05.934Z [upload-start] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de sourceType=url useStream=true attempt=3/3
+2026-03-26T09:13:11.530Z [upload-failed] task=c746cb4a-fe1c-4f0b-ac32-6b995ada44de attempts=3/3 error=Client network socket disconnected before secure TLS connection was established
+2026-03-26T09:17:10.581Z [upload-start] task=708b3bca-30dd-4c4b-8552-abdfb8b4ada1 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:17:17.129Z [upload-success] task=708b3bca-30dd-4c4b-8552-abdfb8b4ada1 duration=6.55s source=0 B compressed=2.08 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774516631343-900701567.png
+2026-03-26T09:20:42.104Z [upload-start] task=343988f7-20fa-4882-a01f-c7b5ca81e59a sourceType=url useStream=true attempt=1/3
+2026-03-26T09:20:48.310Z [upload-success] task=343988f7-20fa-4882-a01f-c7b5ca81e59a duration=6.21s source=0 B compressed=2.54 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774516842829-101566455.png
+2026-03-26T09:24:40.740Z [upload-start] task=03c47586-a88a-4d91-bebc-2551ce708827 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:24:42.913Z [upload-success] task=03c47586-a88a-4d91-bebc-2551ce708827 duration=2.17s source=0 B compressed=2.53 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774517080921-264008246.png
+2026-03-26T09:26:59.746Z [upload-start] task=0cf9d27b-477d-46f9-89d4-4512afb7a0cd sourceType=url useStream=true attempt=1/3
+2026-03-26T09:27:08.939Z [upload-success] task=0cf9d27b-477d-46f9-89d4-4512afb7a0cd duration=9.19s source=0 B compressed=2.45 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774517219929-271146756.png
+2026-03-26T09:34:02.548Z [upload-start] task=c3b07e45-5add-4302-ba86-d561cd4eed80 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:34:09.764Z [upload-success] task=c3b07e45-5add-4302-ba86-d561cd4eed80 duration=7.22s source=0 B compressed=2.56 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774517643173-295227709.png
+2026-03-26T09:35:15.176Z [upload-start] task=2dc160a8-ff33-4974-9ea6-b4e4de099615 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:35:19.440Z [upload-success] task=2dc160a8-ff33-4974-9ea6-b4e4de099615 duration=4.26s source=0 B compressed=2.37 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774517715372-469965688.png
+2026-03-26T09:37:04.135Z [upload-start] task=c7cb13cb-22e8-4911-a08e-943b404cb022 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:37:07.545Z [upload-success] task=c7cb13cb-22e8-4911-a08e-943b404cb022 duration=3.41s source=0 B compressed=2.73 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774517824529-109381685.png
+2026-03-26T09:43:03.241Z [upload-start] task=294205c8-0474-40c5-9dae-87d9c85f2634 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:43:10.280Z [upload-success] task=294205c8-0474-40c5-9dae-87d9c85f2634 duration=7.04s source=0 B compressed=2.65 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518185238-726510305.png
+2026-03-26T09:44:06.020Z [upload-start] task=e9f4d368-7260-4da8-9f74-9ca8092cf7ba sourceType=url useStream=true attempt=1/3
+2026-03-26T09:44:08.463Z [upload-success] task=e9f4d368-7260-4da8-9f74-9ca8092cf7ba duration=2.44s source=0 B compressed=2.11 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518246572-616206527.png
+2026-03-26T09:46:24.070Z [upload-start] task=d0c601d3-348e-4cd8-a893-f05a9e72bc94 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:46:28.558Z [upload-success] task=d0c601d3-348e-4cd8-a893-f05a9e72bc94 duration=4.49s source=0 B compressed=2.60 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518384256-464645689.png
+2026-03-26T09:48:23.276Z [upload-start] task=545cd3f2-9380-4ce1-ba3f-264d67082a8c sourceType=url useStream=true attempt=1/3
+2026-03-26T09:48:29.239Z [upload-success] task=545cd3f2-9380-4ce1-ba3f-264d67082a8c duration=5.96s source=0 B compressed=3.44 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518504787-329331250.png
+2026-03-26T09:50:33.673Z [upload-start] task=9d06092b-5e02-44db-a9a4-142ee8ecd304 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:50:36.369Z [upload-success] task=9d06092b-5e02-44db-a9a4-142ee8ecd304 duration=2.69s source=0 B compressed=2.51 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518633857-87286004.png
+2026-03-26T09:52:00.969Z [upload-start] task=4d780885-192c-4586-b027-07c241f4cf10 sourceType=url useStream=true attempt=1/3
+2026-03-26T09:52:03.863Z [upload-success] task=4d780885-192c-4586-b027-07c241f4cf10 duration=2.89s source=0 B compressed=2.81 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518721335-328453140.png
+2026-03-26T09:52:52.865Z [upload-start] task=8e738bc3-0e9c-4f4a-9c45-75743651fabb sourceType=url useStream=true attempt=1/3
+2026-03-26T09:52:56.531Z [upload-success] task=8e738bc3-0e9c-4f4a-9c45-75743651fabb duration=3.66s source=0 B compressed=2.82 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-26/image-1774518773051-76832970.png
+2026-03-27T05:38:18.444Z [upload-start] task=4785df07-49e8-47a6-86e0-c58b0d9b58de sourceType=url useStream=true attempt=1/3
+2026-03-27T05:38:26.086Z [upload-success] task=4785df07-49e8-47a6-86e0-c58b0d9b58de duration=7.64s source=0 B compressed=2.44 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-27/image-1774589899620-724692336.png
+2026-03-27T05:39:51.668Z [upload-start] task=02054635-d1e3-4cde-8e1e-34a0142b0ed7 sourceType=url useStream=true attempt=1/3
+2026-03-27T05:39:58.324Z [upload-success] task=02054635-d1e3-4cde-8e1e-34a0142b0ed7 duration=6.66s source=0 B compressed=2.24 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-27/image-1774589992885-134087402.png
+2026-03-27T05:40:47.184Z [upload-start] task=39ce0f66-79b9-4dd1-895d-1ef639f07dea sourceType=url useStream=true attempt=1/3
+2026-03-27T05:40:52.019Z [upload-success] task=39ce0f66-79b9-4dd1-895d-1ef639f07dea duration=4.83s source=0 B compressed=2.70 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-27/image-1774590047579-790355455.png
+2026-03-27T11:07:53.010Z [upload-start] task=b861c51c-5367-4d14-a21f-552c22a32334 sourceType=url useStream=true attempt=1/3
+2026-03-27T11:08:01.772Z [upload-success] task=b861c51c-5367-4d14-a21f-552c22a32334 duration=8.76s source=0 B compressed=2.24 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-27/image-1774609674650-781208406.png
+2026-03-27T11:09:53.304Z [upload-start] task=253a752e-748c-4948-9553-e1d118c883be sourceType=url useStream=true attempt=1/3
+2026-03-27T11:09:58.008Z [upload-success] task=253a752e-748c-4948-9553-e1d118c883be duration=4.70s source=0 B compressed=2.45 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-27/image-1774609793503-46234706.png
+2026-03-28T07:26:28.612Z [upload-start] task=ba14757f-18f2-428a-a97f-28cfa6c1aea8 sourceType=url useStream=true attempt=1/3
+2026-03-28T07:26:34.272Z [upload-retry] task=ba14757f-18f2-428a-a97f-28cfa6c1aea8 attempts=1/3 error=Client network socket disconnected before secure TLS connection was established
+2026-03-28T07:26:39.282Z [upload-start] task=ba14757f-18f2-428a-a97f-28cfa6c1aea8 sourceType=url useStream=true attempt=2/3
+2026-03-28T07:26:43.949Z [upload-success] task=ba14757f-18f2-428a-a97f-28cfa6c1aea8 duration=4.67s source=0 B compressed=3.17 MB url=https://mycloudzcq-1300106439.cos.ap-singapore.myqcloud.com/temp/2026-03-28/image-1774682799481-778608679.png

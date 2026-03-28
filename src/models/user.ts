@@ -17,6 +17,7 @@ export interface UserRecord {
   phone?: string;
   nickname?: string;
   avatar?: string;
+  points: number;
   status: number;
   created_at: string;
   updated_at?: string;
@@ -30,6 +31,7 @@ export interface CreateUserData {
   phone?: string;
   nickname?: string;
   avatar?: string;
+  points?: number;
 }
 
 export const User = {
@@ -40,10 +42,10 @@ export const User = {
    */
   async create(data: CreateUserData): Promise<number> {
     try {
-      const { username, password, email, phone, nickname, avatar } = data;
+      const { username, password, email, phone, nickname, avatar, points = 1000 } = data;
       const [result]: any = await db.query(
-        'INSERT INTO users (username, password, email, phone, nickname, avatar) VALUES (?, ?, ?, ?, ?, ?)',
-        [username || null, password || null, email || null, phone || null, nickname || null, avatar || null]
+        'INSERT INTO users (username, password, email, phone, nickname, avatar, points) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [username || null, password || null, email || null, phone || null, nickname || null, avatar || null, points]
       );
       return result.insertId;
     } catch (error: any) {
@@ -67,6 +69,68 @@ export const User = {
     } catch (error: any) {
       console.error('[User.findById] Error:', error.message);
       return null;
+    }
+  },
+
+  /**
+   * 查询用户当前积分
+   * @param id - 用户ID
+   */
+  async getPointsById(id: number): Promise<number | null> {
+    try {
+      if (!id || typeof id !== 'number') throw new Error('Invalid id: must be a number');
+      const [[user]]: any = await db.query(
+        'SELECT points FROM users WHERE id = ? AND status = 1 LIMIT 1',
+        [id]
+      );
+      return user ? Number(user.points) || 0 : null;
+    } catch (error: any) {
+      console.error('[User.getPointsById] Error:', error.message);
+      return null;
+    }
+  },
+
+  /**
+   * 原子预占积分
+   * @param id - 用户ID
+   * @param points - 积分
+   */
+  async reservePointsIfEnough(id: number, points: number): Promise<boolean> {
+    try {
+      if (!id || typeof id !== 'number') throw new Error('Invalid id');
+      const normalizedPoints = Number(points);
+      if (!Number.isInteger(normalizedPoints) || normalizedPoints <= 0) throw new Error('Invalid points');
+
+      const [result]: any = await db.query(
+        'UPDATE users SET points = points - ? WHERE id = ? AND status = 1 AND points >= ?',
+        [normalizedPoints, id, normalizedPoints]
+      );
+      return result.affectedRows > 0;
+    } catch (error: any) {
+      console.error('[User.reservePointsIfEnough] Error:', error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * 增加积分
+   * @param id - 用户ID
+   * @param points - 积分
+   */
+  async addPoints(id: number, points: number): Promise<boolean> {
+    try {
+      if (!id || typeof id !== 'number') throw new Error('Invalid id');
+      const normalizedPoints = Number(points);
+      if (!Number.isInteger(normalizedPoints) || normalizedPoints <= 0) throw new Error('Invalid points');
+
+      const [result]: any = await db.query(
+        'UPDATE users SET points = points + ? WHERE id = ? AND status = 1',
+        [normalizedPoints, id]
+      );
+      return result.affectedRows > 0;
+    } catch (error: any) {
+      console.error('[User.addPoints] Error:', error.message);
+      throw error;
     }
   },
 
@@ -132,7 +196,7 @@ export const User = {
   async update(id: number, data: Partial<UserRecord>): Promise<boolean> {
     try {
       if (!id || typeof id !== 'number') throw new Error('Invalid id');
-      const allowedFields = ['username', 'password', 'email', 'phone', 'nickname', 'avatar', 'status'];
+      const allowedFields = ['username', 'password', 'email', 'phone', 'nickname', 'avatar', 'points', 'status'];
       const updates: string[] = [];
       const values: any[] = [];
 
@@ -181,7 +245,7 @@ export const User = {
       );
 
       const [users]: any = await db.query(
-        `SELECT id, username, email, phone, nickname, avatar, status, created_at, updated_at
+        `SELECT id, username, email, phone, nickname, avatar, points, status, created_at, updated_at
          FROM users WHERE ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
         [...params, limit, offset]
       );
@@ -189,6 +253,63 @@ export const User = {
       return { total, page, limit, data: users };
     } catch (error: any) {
       console.error('[User.list] Error:', error.message);
+      return { total: 0, page: 1, limit: 10, data: [] };
+    }
+  },
+
+  async listForAdmin(options: {
+    page?: number;
+    limit?: number;
+    status?: number;
+    username?: string;
+  } = {}) {
+    try {
+      const page = Math.max(1, Number(options.page) || 1);
+      const limit = Math.max(1, Math.min(100, Number(options.limit) || 10));
+      const offset = (page - 1) * limit;
+      const conditions: string[] = ['1=1'];
+      const params: any[] = [];
+
+      if (options.status !== undefined) {
+        conditions.push('u.status = ?');
+        params.push(options.status);
+      }
+
+      if (options.username) {
+        conditions.push('(u.username LIKE ? OR u.nickname LIKE ? OR u.email LIKE ?)');
+        params.push(`%${options.username}%`, `%${options.username}%`, `%${options.username}%`);
+      }
+
+      const whereClause = conditions.join(' AND ');
+
+      const [countRows]: any = await db.query(`SELECT COUNT(*) AS total FROM users u WHERE ${whereClause}`, params);
+      const total = Number((countRows as any[])[0]?.total || 0);
+      const [rows]: any = await db.query(
+        `SELECT u.id, u.username, u.email, u.phone, u.nickname, u.avatar, u.points, u.status,
+                DATE_FORMAT(u.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+                DATE_FORMAT(u.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,
+                COALESCE(stats.total_recharge_amount, 0) AS total_recharge_amount,
+                COALESCE(stats.total_recharge_points, 0) AS total_recharge_points,
+                DATE_FORMAT(stats.last_paid_at, '%Y-%m-%d %H:%i:%s') AS last_paid_at
+         FROM users u
+         LEFT JOIN (
+           SELECT user_id,
+                  SUM(amount) AS total_recharge_amount,
+                  SUM(points) AS total_recharge_points,
+                  MAX(paid_at) AS last_paid_at
+           FROM payment_orders
+           WHERE status = 'paid'
+           GROUP BY user_id
+         ) stats ON stats.user_id = u.id
+         WHERE ${whereClause}
+         ORDER BY u.created_at DESC
+         LIMIT ? OFFSET ?`,
+        [...params, limit, offset]
+      );
+
+      return { total, page, limit, data: rows };
+    } catch (error: any) {
+      console.error('[User.listForAdmin] Error:', error.message);
       return { total: 0, page: 1, limit: 10, data: [] };
     }
   },
